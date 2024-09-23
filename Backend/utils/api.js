@@ -28,15 +28,44 @@ const signup = async (userData) => {
   }
 };
 
+const createClass = async (classData,token) => {
+  try {
+    const response = await axios.post(`${API_URL}/class/create`, classData, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+    });
 
-// const registerStudent = async (data) => {
-//   const response = await axios.post(`${API_URL}/student/register`, data);
-//   return response.data;S
-// };
+    if (response.status === 201) {
+      console.log('Class created successfully:', response.data);
+      return response.data;
+    } else {
+      console.error('Failed to create class:', response.statusText);
+      return response.statusText;
+    }
+  } catch (error) {
+    console.error('Error submitting the form:', error);
+    
+  }
+};
 
-// const registerTeacher = async (data) => {
-//   const response = await axios.post(`${API_URL}/teacher/register`, data);
-//   return response.data;
-// };
+const getTeachers = async () => {
+  try {
+    const token = localStorage.getItem('token'); // Retrieve the token from localStorage or wherever it's stored
+    const response = await axios.get(`${API_URL}/admin/users/getTeachers`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the Bearer token in the Authorization header
+      }
+    });
+    console.log('Teachers data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching teachers data:', error);
+    throw error;
+  }
+};
 
-export { login, signup };
+
+
+export { login, signup,createClass,getTeachers};

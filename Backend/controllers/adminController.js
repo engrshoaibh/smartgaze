@@ -1,30 +1,19 @@
 const User = require('../models/User');
 
-// Create a new user (admin, teacher, or student)
-exports.createUser = async (req, res) => {
+
+
+exports.getTeachers = async (req, res) => {
   try {
-    const newUser = await User.create(req.body);
-    res.status(201).json({
+    const teachers = await User.find({ role: 'teacher' });
+    res.status(200).json({
       status: 'success',
-      data: { user: newUser }
+      data: { teachers }
     });
   } catch (err) {
     res.status(400).json({ status: 'fail', message: err.message });
   }
 };
 
-// Get all users (admin, teachers, and students)
-exports.getAllUsers = async (req, res) => {
-  try {
-    const users = await User.find();
-    res.status(200).json({
-      status: 'success',
-      data: { users }
-    });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
 
 // Get a single user by ID
 exports.getUserById = async (req, res) => {
