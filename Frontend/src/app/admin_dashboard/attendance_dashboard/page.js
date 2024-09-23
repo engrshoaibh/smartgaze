@@ -10,12 +10,14 @@ import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { CSVLink } from 'react-csv';
 
-// Expanded attendance records with more entries
 const attendanceRecords = [
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', present: 28, absent: 2 },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', present: 27, absent: 3 },
-  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', present: 29, absent: 1 },
-  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', present: 26, absent: 4 },
+  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '09:00 AM', present: 28, absent: 2 },
+  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '01:00 PM', present: 26, absent: 4 },
+  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', time: '09:00 AM', present: 27, absent: 3 },
+  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '09:00 AM', present: 29, absent: 1 },
+  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '01:00 PM', present: 30, absent: 0 },
+  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '09:00 AM', present: 26, absent: 4 },
+  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '01:00 PM', present: 24, absent: 6 },
 ];
 
 const AttendanceDashboard = () => {
@@ -29,7 +31,10 @@ const AttendanceDashboard = () => {
   const [endDate, setEndDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [filteredRecords, setFilteredRecords] = useState([]);
-  const [selectedReport, setSelectedReport] = useState(null); // State for selected report
+  const [graphFilteredRecords, setGraphFilteredRecords] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedGraphClass, setSelectedGraphClass] = useState('');
+  const [selectedGraphTeacher, setSelectedGraphTeacher] = useState('');
 
   useEffect(() => {
     const classList = [...new Set(attendanceRecords.map((record) => record.class))];
@@ -43,6 +48,8 @@ const AttendanceDashboard = () => {
     setLoading(true);
     try {
       await new Promise((resolve) => setTimeout(resolve, 500));
+      setFilteredRecords(attendanceRecords); // Initial full records for both
+      setGraphFilteredRecords(attendanceRecords);
       prepareChartData(attendanceRecords);
       setLoading(false);
     } catch (error) {
@@ -103,25 +110,55 @@ const AttendanceDashboard = () => {
     }
 
     setFilteredRecords(records);
-    prepareChartData(records);
     setLoading(false);
   };
 
-  const handleReportClick = (record) => {
-    setSelectedReport(record);
+  const handleGraphFilterChange = () => {
+    let records = [...attendanceRecords];
+
+    if (selectedGraphClass) {
+      records = records.filter((record) => record.class === selectedGraphClass);
+    }
+    if (selectedGraphTeacher) {
+      records = records.filter((record) => record.teacher === selectedGraphTeacher);
+    }
+
+    setGraphFilteredRecords(records);
+    prepareChartData(records); // Update chart data based on graph filtered records
+  };
+
+  const onGraphClassChange = (e) => {
+    setSelectedGraphClass(e.target.value);
+    handleGraphFilterChange();
+  };
+
+  const onGraphTeacherChange = (e) => {
+    setSelectedGraphTeacher(e.target.value);
+    handleGraphFilterChange();
+  };
+
+  const handleReportClick = (className, date) => {
+    const recordsForReport = filteredRecords.filter(
+      (record) => record.class === className && record.date === date
+    );
+    setSelectedReport(recordsForReport);
     setModalIsOpen(true);
   };
 
-  const exportToPDF = (record) => {
+  const exportToPDF = (records) => {
     const doc = new jsPDF();
-    doc.text(`Attendance Report for ${record.class} on ${record.date}`, 14, 15);
+    doc.text(`Attendance Report for ${records[0].class} on ${records[0].date}`, 14, 15);
     doc.setFontSize(10);
-    const line = `Teacher: ${record.teacher}, Present: ${record.present}, Absent: ${record.absent}`;
-    doc.text(line, 14, 25);
-    doc.save(`attendance_report_${record.class}_${record.date}.pdf`);
+
+    records.forEach((record, index) => {
+      const line = `Time: ${record.time}, Teacher: ${record.teacher}, Present: ${record.present}, Absent: ${record.absent}`;
+      doc.text(line, 14, 25 + index * 10);
+    });
+
+    doc.save(`attendance_report_${records[0].class}_${records[0].date}.pdf`);
   };
 
-  const tableHeaders = ['Date', 'Class', 'Teacher', 'Present', 'Absent'];
+  const tableHeaders = ['Time', 'Class', 'Teacher', 'Present', 'Absent'];
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -131,17 +168,49 @@ const AttendanceDashboard = () => {
 
         <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20" style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg ">
+          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg">
             {loading ? (
               <p>Loading data...</p>
             ) : (
-              <Bar data={attendanceData} options={{ maintainAspectRatio: true }} />
+              <div>
+                {/* Graph Filters */}
+                <div className="flex justify-end mb-4">
+                  <select
+                    value={selectedGraphClass}
+                    onChange={onGraphClassChange}
+                    className="border border-gray-300 rounded-md px-2 py-1"
+                  >
+                    <option value="">All Classes</option>
+                    {classes.map((className, idx) => (
+                      <option key={idx} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={selectedGraphTeacher}
+                    onChange={onGraphTeacherChange}
+                    className="border border-gray-300 rounded-md px-2 py-1 ml-2"
+                  >
+                    <option value="">All Teachers</option>
+                    {teachers.map((teacher, idx) => (
+                      <option key={idx} value={teacher}>
+                        {teacher}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <Bar data={attendanceData} options={{ maintainAspectRatio: true }} />
+              </div>
             )}
           </div>
 
           {/* Filters Section */}
-          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg ">
+          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg">
             <div className="flex space-x-4 mb-4">
+              {/* Existing Filters */}
               <div className="flex-1">
                 <label className="block text-gray-700">Filter by Class</label>
                 <select
@@ -212,7 +281,11 @@ const AttendanceDashboard = () => {
                 <h3 className="font-semibold">Attendance Reports:</h3>
                 <ul className="list-disc list-inside">
                   {filteredRecords.map((record, idx) => (
-                    <li key={idx} onClick={() => handleReportClick(record)} className="cursor-pointer hover:text-blue-600">
+                    <li
+                      key={idx}
+                      onClick={() => handleReportClick(record.class, record.date)}
+                      className="cursor-pointer hover:text-blue-600"
+                    >
                       {record.class} (Attendance {record.date})
                     </li>
                   ))}
@@ -227,12 +300,31 @@ const AttendanceDashboard = () => {
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
             <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto">
               <h2 className="text-2xl font-semibold mb-4">
-                {selectedReport.class} Attendance Report
+                {selectedReport[0].class} Attendance Report
               </h2>
-              <p>Date: {selectedReport.date}</p>
-              <p>Teacher: {selectedReport.teacher}</p>
-              <p>Present: {selectedReport.present}</p>
-              <p>Absent: {selectedReport.absent}</p>
+              <p>Date: {selectedReport[0].date}</p>
+              
+              <table className="min-w-full border-collapse border border-gray-200">
+                <thead>
+                  <tr>
+                    {tableHeaders.map((header, idx) => (
+                      <th key={idx} className="border border-gray-200 p-2">{header}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedReport.map((record, index) => (
+                    <tr key={index}>
+                      <td className="border border-gray-200 p-2">{record.time}</td>
+                      <td className="border border-gray-200 p-2">{record.class}</td>
+                      <td className="border border-gray-200 p-2">{record.teacher}</td>
+                      <td className="border border-gray-200 p-2">{record.present}</td>
+                      <td className="border border-gray-200 p-2">{record.absent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={() => exportToPDF(selectedReport)}
@@ -241,15 +333,16 @@ const AttendanceDashboard = () => {
                   Export as PDF
                 </button>
                 <CSVLink
-                  data={[selectedReport]} // Only the selected report
+                  data={selectedReport}
                   headers={[
+                    { label: 'Time', key: 'time' },
                     { label: 'Date', key: 'date' },
                     { label: 'Class', key: 'class' },
                     { label: 'Teacher', key: 'teacher' },
                     { label: 'Present', key: 'present' },
                     { label: 'Absent', key: 'absent' },
                   ]}
-                  filename={`attendance_report_${selectedReport.class}_${selectedReport.date}.csv`}
+                  filename={`attendance_report_${selectedReport[0].class}_${selectedReport[0].date}.csv`}
                   className="bg-gray-300 text-black px-4 py-2 rounded"
                 >
                   Export as CSV
@@ -270,4 +363,3 @@ const AttendanceDashboard = () => {
 };
 
 export default AttendanceDashboard;
-
