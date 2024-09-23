@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
-import { Line } from 'react-chartjs-2';
+import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import jsPDF from 'jspdf';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -29,9 +29,9 @@ const AttendanceDashboard = () => {
   const [endDate, setEndDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [filteredRecords, setFilteredRecords] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null); // State for selected report
 
   useEffect(() => {
-    // Initialize classes and teachers lists
     const classList = [...new Set(attendanceRecords.map((record) => record.class))];
     setClasses(classList);
     const teacherList = [...new Set(attendanceRecords.map((record) => record.teacher))];
@@ -42,7 +42,6 @@ const AttendanceDashboard = () => {
   const fetchAttendanceData = async () => {
     setLoading(true);
     try {
-      // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 500));
       prepareChartData(attendanceRecords);
       setLoading(false);
@@ -53,7 +52,6 @@ const AttendanceDashboard = () => {
   };
 
   const prepareChartData = (records) => {
-    // Aggregate data for the chart
     const dateLabels = [...new Set(records.map((record) => record.date))].sort();
     const presentData = dateLabels.map((date) => {
       return records
@@ -74,16 +72,14 @@ const AttendanceDashboard = () => {
           data: presentData,
           backgroundColor: 'rgba(75,192,192,0.4)',
           borderColor: 'rgba(75,192,192,1)',
-          fill: false,
-          tension: 0.1,
+          borderWidth: 1,
         },
         {
           label: 'Absent Students',
           data: absentData,
           backgroundColor: 'rgba(255,99,132,0.4)',
           borderColor: 'rgba(255,99,132,1)',
-          fill: false,
-          tension: 0.1,
+          borderWidth: 1,
         },
       ],
     });
@@ -109,21 +105,20 @@ const AttendanceDashboard = () => {
     setFilteredRecords(records);
     prepareChartData(records);
     setLoading(false);
-    setModalIsOpen(true); // Open the modal to show the table
   };
 
-  const exportToPDF = () => {
+  const handleReportClick = (record) => {
+    setSelectedReport(record);
+    setModalIsOpen(true);
+  };
+
+  const exportToPDF = (record) => {
     const doc = new jsPDF();
-    doc.text('Attendance Report', 14, 15);
+    doc.text(`Attendance Report for ${record.class} on ${record.date}`, 14, 15);
     doc.setFontSize(10);
-
-    let yPosition = 25;
-    filteredRecords.forEach((record, index) => {
-      const line = `Date: ${record.date}, Class: ${record.class}, Teacher: ${record.teacher}, Present: ${record.present}, Absent: ${record.absent}`;
-      doc.text(line, 14, yPosition + index * 7);
-    });
-
-    doc.save('attendance_report.pdf');
+    const line = `Teacher: ${record.teacher}, Present: ${record.present}, Absent: ${record.absent}`;
+    doc.text(line, 14, 25);
+    doc.save(`attendance_report_${record.class}_${record.date}.pdf`);
   };
 
   const tableHeaders = ['Date', 'Class', 'Teacher', 'Present', 'Absent'];
@@ -134,27 +129,27 @@ const AttendanceDashboard = () => {
       <main className="flex-1 p-6">
         <Header />
 
-        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
+        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20" style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg">
+          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg ">
             {loading ? (
               <p>Loading data...</p>
             ) : (
-              <Line data={attendanceData} options={{ maintainAspectRatio: true }} />
+              <Bar data={attendanceData} options={{ maintainAspectRatio: true }} />
             )}
           </div>
 
           {/* Filters Section */}
-          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg">
-            <div className="flex flex-col space-y-4 mb-4">
-              <div>
+          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg ">
+            <div className="flex space-x-4 mb-4">
+              <div className="flex-1">
                 <label className="block text-gray-700">Filter by Class</label>
                 <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
                   className="border border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">-- All Classes --</option>
+                  <option value="">All</option>
                   {classes.map((className, idx) => (
                     <option key={idx} value={className}>
                       {className}
@@ -163,14 +158,14 @@ const AttendanceDashboard = () => {
                 </select>
               </div>
 
-              <div>
+              <div className="flex-1">
                 <label className="block text-gray-700">Filter by Teacher</label>
                 <select
                   value={selectedTeacher}
                   onChange={(e) => setSelectedTeacher(e.target.value)}
                   className="border border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">-- All Teachers --</option>
+                  <option value="">All</option>
                   {teachers.map((teacher, idx) => (
                     <option key={idx} value={teacher}>
                       {teacher}
@@ -179,95 +174,93 @@ const AttendanceDashboard = () => {
                 </select>
               </div>
 
-              <div className="flex space-x-2">
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                  selectsStart
-                  startDate={startDate}
-                  endDate={endDate}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
-                  placeholderText="Start Date"
-                />
-                <DatePicker
-                  selected={endDate}
-                  onChange={(date) => setEndDate(date)}
-                  selectsEnd
-                  startDate={startDate}
-                  endDate={endDate}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
-                  placeholderText="End Date"
-                />
+              <div className="flex-1">
+                <label className="block text-gray-700">Date Range</label>
+                <div className="flex space-x-2">
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                    selectsStart
+                    startDate={startDate}
+                    endDate={endDate}
+                    className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                    placeholderText="Start Date"
+                  />
+                  <DatePicker
+                    selected={endDate}
+                    onChange={(date) => setEndDate(date)}
+                    selectsEnd
+                    startDate={startDate}
+                    endDate={endDate}
+                    className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                    placeholderText="End Date"
+                  />
+                </div>
               </div>
-
-              <button
-                onClick={handleFilterChange}
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-              >
-                Apply Filters
-              </button>
             </div>
+
+            <button
+              onClick={handleFilterChange}
+              className="bg-gray-300 text-black px-4 py-2 rounded"
+            >
+              Apply Filters
+            </button>
+
+            {/* Reports List */}
+            {filteredRecords.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-semibold">Attendance Reports:</h3>
+                <ul className="list-disc list-inside">
+                  {filteredRecords.map((record, idx) => (
+                    <li key={idx} onClick={() => handleReportClick(record)} className="cursor-pointer hover:text-blue-600">
+                      {record.class} (Attendance {record.date})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Modal for Report Table */}
-        {modalIsOpen && (
+        {/* Modal for Selected Report */}
+        {modalIsOpen && selectedReport && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-auto">
-              <h2 className="text-2xl font-semibold mb-4">Attendance Report</h2>
-              {filteredRecords.length > 0 ? (
-                <div>
-                  <table className="min-w-full bg-white mb-4">
-                    <thead>
-                      <tr>
-                        {tableHeaders.map((header, idx) => (
-                          <th key={idx} className="py-2 px-4 border">
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRecords.map((record, idx) => (
-                        <tr key={idx}>
-                          <td className="py-2 px-4 border">{record.date}</td>
-                          <td className="py-2 px-4 border">{record.class}</td>
-                          <td className="py-2 px-4 border">{record.teacher}</td>
-                          <td className="py-2 px-4 border">{record.present}</td>
-                          <td className="py-2 px-4 border">{record.absent}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="flex flex-wrap space-x-4">
-                    <button
-                      onClick={exportToPDF}
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Export as PDF
-                    </button>
-                    <CSVLink
-                      data={filteredRecords}
-                      headers={tableHeaders.map((header) => ({
-                        label: header,
-                        key: header.toLowerCase(),
-                      }))}
-                      filename="attendance_report.csv"
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Export as CSV
-                    </CSVLink>
-                    <button
-                      onClick={() => setModalIsOpen(false)}
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p>No records found.</p>
-              )}
+            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto">
+              <h2 className="text-2xl font-semibold mb-4">
+                {selectedReport.class} Attendance Report
+              </h2>
+              <p>Date: {selectedReport.date}</p>
+              <p>Teacher: {selectedReport.teacher}</p>
+              <p>Present: {selectedReport.present}</p>
+              <p>Absent: {selectedReport.absent}</p>
+              <div className="flex space-x-4 mt-4">
+                <button
+                  onClick={() => exportToPDF(selectedReport)}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                >
+                  Export as PDF
+                </button>
+                <CSVLink
+                  data={[selectedReport]} // Only the selected report
+                  headers={[
+                    { label: 'Date', key: 'date' },
+                    { label: 'Class', key: 'class' },
+                    { label: 'Teacher', key: 'teacher' },
+                    { label: 'Present', key: 'present' },
+                    { label: 'Absent', key: 'absent' },
+                  ]}
+                  filename={`attendance_report_${selectedReport.class}_${selectedReport.date}.csv`}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                >
+                  Export as CSV
+                </CSVLink>
+                <button
+                  onClick={() => setModalIsOpen(false)}
+                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -277,3 +270,4 @@ const AttendanceDashboard = () => {
 };
 
 export default AttendanceDashboard;
+
