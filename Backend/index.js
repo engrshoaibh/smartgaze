@@ -19,8 +19,10 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(express.json()); // To parse JSON request bodies
-app.use(cors()); // Enable CORS
+// Increase payload size limit for incoming requests
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
+app.use(cors()); 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev')); // Use Morgan logger in development
 }

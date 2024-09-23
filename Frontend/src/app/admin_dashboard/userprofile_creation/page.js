@@ -3,14 +3,14 @@
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
 import { useState, useEffect } from 'react';
-
+import { signup } from '../../../../../Backend/utils/api';
 const ImageUpload = ({ image, setImage }) => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImage(reader.result);
+        setImage(reader.result); // Store the base64 string of the image
       };
       reader.readAsDataURL(file);
     }
@@ -36,8 +36,8 @@ const ImageUpload = ({ image, setImage }) => {
 };
 
 export default function MainDashboard() {
-  const [role, setRole] = useState('student'); // Default to student
-  const [image, setImage] = useState('/images/add.jpg'); // Default image path
+  const [role, setRole] = useState('student');
+  const [image, setImage] = useState(null); // Store the uploaded image
   const [formValues, setFormValues] = useState({
     name: '',
     email: '',
@@ -49,7 +49,7 @@ export default function MainDashboard() {
   });
   const [errors, setErrors] = useState({});
   const [isFormValid, setIsFormValid] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false); // Track form submission state
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [imageError, setImageError] = useState(false);
 
   useEffect(() => {
@@ -57,26 +57,7 @@ export default function MainDashboard() {
     setIsFormValid(isValid);
   }, [formValues, role, image]);
 
-  useEffect(() => {
-    // Reset form values when role changes
-    setFormValues({
-      name: '',
-      email: '',
-      phone: '',
-      class: '',
-      section: '',
-      batch: '',
-      department: ''
-    });
-    setErrors({});
-    setImage('/images/add.jpg'); // Reset the image to default
-    setImageError(false);
-    setIsSubmitted(false); // Reset the submitted state when the role changes
-  }, [role]);
-
-  const handleRoleChange = (e) => {
-    setRole(e.target.value);
-  };
+  const handleRoleChange = (e) => setRole(e.target.value);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -88,8 +69,6 @@ export default function MainDashboard() {
     if (!formValues.name) newErrors.name = 'Name is required';
     if (!formValues.email) newErrors.email = 'Email is required';
     if (!formValues.phone) newErrors.phone = 'Phone number is required';
-    if (formValues.phone && formValues.phone.length !== 11) newErrors.phone = 'Phone number must be 11 digits';
-    if (formValues.name && /\d/.test(formValues.name)) newErrors.name = 'Name should not contain digits';
     if (role === 'student') {
       if (!formValues.class) newErrors.class = 'Class is required';
       if (!formValues.section) newErrors.section = 'Section is required';
@@ -98,21 +77,49 @@ export default function MainDashboard() {
       if (!formValues.department) newErrors.department = 'Department is required';
     }
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0 && image !== '/images/add.jpg';
+    return Object.keys(newErrors).length === 0 && image; // Ensure image is also validated
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitted(true); // Mark the form as submitted
+    setIsSubmitted(true);
+
+    if (!image) {
+      setImageError(true); // Set image error if no image is uploaded
+    }
+
     const isValid = validateForm();
     if (isValid) {
-      console.log('Form values:', formValues);
-      alert('Profile is created');
-    } else {
-      if (image === '/images/add.jpg') {
-        setImageError(true);
+      try {
+        const userData = {
+          name: formValues.name,
+          email: formValues.email,
+          phoneNumber: formValues.phone,
+          password: formValues.name.toLowerCase().replace(/\s+/g, ''),
+          role: role,
+          classInfo: formValues.class,
+          section: formValues.section,
+          batch: formValues.batch,
+          department: formValues.department,
+          profileImage: image // Add the image to userData
+        };
+
+        const result = await signup(userData);
+        alert('Profile created successfully!');
+        setFormValues({
+          name: '',
+          email: '',
+          phone: '',
+          class: '',
+          section: '',
+          batch: '',
+          department: ''
+        });
+        setImage(null); // Reset the image
+        setIsSubmitted(false);
+      } catch (error) {
+        alert(`Error: ${error.message}`);
       }
-      alert('Please fill the form correctly!');
     }
   };
 
@@ -188,7 +195,7 @@ export default function MainDashboard() {
               <div className="w-full md:w-1/2 pr-2 -mt-28">
                 <div className="flex justify-center items-center">
                   <div className="flex justify-center items-center -ml-24">
-                    <ImageUpload image={image} setImage={setImage} />
+                    <ImageUpload image={image || '/images/add.jpg'} setImage={setImage} />
                   </div>
                 </div>
 
@@ -253,6 +260,8 @@ export default function MainDashboard() {
                 )}
               </div>
             </div>
+
+            {imageError && <p className="text-red-500 text-sm text-center">Profile image is required</p>}
 
             {/* Create Profile Button */}
             <div className="mt-8 text-center">

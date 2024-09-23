@@ -4,7 +4,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
-import { login } from '../../../../backend/utils/api';
+import { login } from '../../../../Backend/utils/api';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -25,18 +25,34 @@ export default function LoginPage() {
     }
 
     try {
-      const data = { username: userId, password };
+      const data = { email: userId, password };
       const response = await login(data);
-
+      console.log("response",response);
+      
       if (response.token) {
+        // Store the token in localStorage
         localStorage.setItem('token', response.token);
-        router.push('/admin_dashboard');
+
+        // Check the user's role and navigate accordingly
+        switch (response.user.role) {
+          case 'admin':
+            router.push('/admin_dashboard/main_dashboard', );
+            break;
+          case 'teacher':
+            router.push('/teacher_dashboard');
+            break;
+          case 'student':
+            router.push('/student_dashboard');
+            break;
+          default:
+            setError('Unknown role. Please contact support.');
+            break;
+        }
       } else {
+        // If there's an error message from the backend
         if (response.message) {
-          // Display custom error from the server if provided
           setError(response.message);
         } else {
-          // General failure for invalid credentials
           setError('Login failed, please check your credentials.');
         }
       }
@@ -45,8 +61,6 @@ export default function LoginPage() {
 
       // Differentiate between common error types
       if (err.response) {
-        // The request was made, and the server responded with a status code
-        // that falls outside the range of 2xx
         switch (err.response.status) {
           case 400:
             setError('Invalid credentials!');
@@ -61,10 +75,8 @@ export default function LoginPage() {
             setError('An unknown error occurred. Please try again.');
         }
       } else if (err.request) {
-        // The request was made, but no response was received
         setError('Network error. Please check your internet connection.');
       } else {
-        // Something else happened
         setError('An unexpected error occurred.');
       }
     }
