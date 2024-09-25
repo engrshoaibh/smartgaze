@@ -16,22 +16,22 @@ const CreateClass = () => {
 
   const sectionOptions = ['A', 'B'];
 
-  const [teacherOptions, setTeacherOptions] = useState([]); // Initialize with an empty array
+  const [teacherOptions, setTeacherOptions] = useState([]);
+  const [classes, setClasses] = useState([]);
   const [formData, setFormData] = useState({
-    courseCode: '',
-    courseName: '',
     className: '',
     sectionName: '',
     description: '',
-    teacher: '' // This will hold the teacher's _id
+    teacher: '',
   });
 
+  const [courseList, setCourseList] = useState([{ courseCode: '', courseName: '' }]);
+
   useEffect(() => {
-    // Fetch the list of teachers when the component mounts
     const fetchTeachers = async () => {
       try {
         const data = await getTeachers();
-        setTeacherOptions(data.data.teachers); // Assuming the response contains the array of teachers in `data.teachers`
+        setTeacherOptions(data.data.teachers);
       } catch (error) {
         console.error('Error fetching teachers:', error);
       }
@@ -39,59 +39,158 @@ const CreateClass = () => {
 
     fetchTeachers();
   }, []);
+  useEffect(() => {
+    const departmentClasses = {
+      cs: [
+        { value: '', label: 'Select Class' },
+        { value: 'bse', label: 'Bachelor of Software Engineering (BSE)' },
+        { value: 'bcs', label: 'Bachelor of Computer Science (BCS)' },
+        { value: 'bai', label: 'Bachelor of Artificial Intelligence (BAI)' },
+        { value: 'bds', label: 'Bachelor of Data Science (BDS)' }
+      ],
+      ee: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsee', label: 'Bachelor of Science in Electrical Engineering (BSEE)' }
+      ],
+      me: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsme', label: 'Bachelor of Science in Mechanical Engineering (BSME)' }
+      ],
+      ce: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsce', label: 'Bachelor of Science in Civil Engineering (BSCE)' }
+      ],
+      ba: [
+        { value: '', label: 'Select Class' },
+        { value: 'bba', label: 'Bachelor of Business Administration (BBA)' }
+      ],
+      math: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsmath', label: 'Bachelor of Science in Mathematics (BS Math)' }
+      ],
+      phy: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsphy', label: 'Bachelor of Science in Physics (BS Physics)' }
+      ],
+      che: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsche', label: 'Bachelor of Science in Chemistry (BS Chemistry)' }
+      ],
+      bio: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsbio', label: 'Bachelor of Science in Biology (BS Biology)' }
+      ],
+      soc: [
+        { value: '', label: 'Select Class' },
+        { value: 'bapsych', label: 'Bachelor of Arts in Psychology (BAP)' },
+        { value: 'bas', label: 'Bachelor of Arts in Sociology (BAS)' },
+        { value: 'bses', label: 'Bachelor of Science in Environmental Science (BSES)' },
+        { value: 'bed', label: 'Bachelor of Education (BEd)' }
+      ],
+      hum: [
+        { value: '', label: 'Select Class' },
+        { value: 'baeng', label: 'Bachelor of Arts in English Literature (BA English)' }
+      ],
+      law: [
+        { value: '', label: 'Select Class' },
+        { value: 'llb', label: 'Bachelor of Laws (LLB)' }
+      ],
+      arch: [
+        { value: '', label: 'Select Class' },
+        { value: 'barch', label: 'Bachelor of Architecture (BArch)' }
+      ],
+      media: [
+        { value: '', label: 'Select Class' },
+        { value: 'bms', label: 'Bachelor of Media Studies (BMS)' }
+      ]
+    };
+
+    const studentClasses = [{ value: '', label: 'Select Class' }];
+    for (const classes of Object.values(departmentClasses)) {
+      studentClasses.push(...classes.slice(1));
+    }
+    setClasses(studentClasses);
+  }, []);
+
+  const handleCourseCodeChange = (e, index) => {
+    const selectedCode = e.target.value;
+    const selectedCourse = courseOptions.find(course => course.code === selectedCode);
+
+    const updatedCourses = [...courseList];
+    updatedCourses[index] = {
+      courseCode: selectedCode,
+      courseName: selectedCourse ? selectedCourse.name : '',
+    };
+
+    setCourseList(updatedCourses);
+  };
+
+  const handleCourseNameChange = (e, index) => {
+    const selectedName = e.target.value;
+    const selectedCourse = courseOptions.find(course => course.name === selectedName);
+
+    const updatedCourses = [...courseList];
+    updatedCourses[index] = {
+      courseCode: selectedCourse ? selectedCourse.code : '',
+      courseName: selectedName,
+    };
+
+    setCourseList(updatedCourses);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // If courseCode changes, also update courseName automatically
-    if (name === 'courseCode') {
-      const selectedCourse = courseOptions.find(course => course.code === value);
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        courseCode: value,
-        courseName: selectedCourse ? selectedCourse.name : '', 
-      }));
-    } else {
-      setFormData((prevFormData) => ({
-        ...prevFormData,
-        [name]: value,
-      }));
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const addCourseFields = () => {
+    if (courseList.length < 5) {
+      setCourseList([...courseList, { courseCode: '', courseName: '' }]);
+    }
+  };
+
+  const removeCourseFields = (index) => {
+    if (courseList.length > 1) {
+      const updatedCourses = courseList.filter((_, i) => i !== index);
+      setCourseList(updatedCourses);
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // prevent page refresh
-    // Validation
-    if (!formData.className || !formData.sectionName || !formData.courseCode || !formData.teacher) {
+    e.preventDefault();
+
+    if (!formData.className || !formData.sectionName || !formData.teacher || 
+        courseList.some(course => !course.courseCode || !course.courseName)) {
       alert('Please fill out all required fields.');
       return;
     }
-  
+
     const submissionData = {
-      name: formData.className,  // Map `className` to `name` expected by the backend
-      section: formData.sectionName,  // Map `sectionName` to `section` expected by the backend
-      courseCode: formData.courseCode,
-      courseName: formData.courseName,
+      name: formData.className,
+      section: formData.sectionName,
+      courseCodes: courseList.map(course => course.courseCode),
+      courseNames: courseList.map(course => course.courseName),
       description: formData.description,
-      teacher: formData.teacher, // This will now be the teacher's _id
+      teacher: formData.teacher,
     };
 
     try {
       const token = localStorage.getItem('token');
-      const response = await createClass(submissionData, token); // Pass the correctly mapped data
+      const response = await createClass(submissionData, token);
       console.log(response);
-      // Reset the form if needed, or show a success message
-      setFormData({
-        courseCode: '',
-        courseName: '',
-        className: '',
-        sectionName: '',
-        description: '',
-        teacher: ''
-      });
     } catch (error) {
       console.error('Error creating class:', error);
     }
+  };
+
+
+  const getAvailableCourseOptions = (index) => {
+    const selectedCourseCodes = courseList.map(course => course.courseCode).filter(code => code);
+    return courseOptions.filter(course => !selectedCourseCodes.includes(course.code) || course.code === courseList[index].courseCode);
   };
 
   return (
@@ -106,14 +205,19 @@ const CreateClass = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Class Name</label>
-                  <input
-                    type="text"
-                    name="className"
-                    value={formData.className}
-                    onChange={handleChange}
-                    placeholder="Enter Class Name"
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
+                  <select
+                        id="class"
+                        value={formData.class}
+                        onChange={handleChange}
+                        className={`w-3/4 px-4 py-2 border 'border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      >
+                        {classes.map((cls) => (
+                          <option key={cls.value} value={cls.label}>
+                            {cls.label}
+                          </option>
+                        ))}
+                      </select>
+                      
                 </div>
 
                 <div>
@@ -134,42 +238,70 @@ const CreateClass = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Course Code</label>
-                  <select
-                    name="courseCode"
-                    value={formData.courseCode}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  >
-                    <option value="">Select Course Code</option>
-                    {courseOptions.map((course) => (
-                      <option key={course.code} value={course.code}>
-                        {course.code}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              {/* Dynamic Course Fields */}
+              {courseList.map((course, index) => (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6" key={index}>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Course Code</label>
+                    <select
+                      name="courseCode"
+                      value={course.courseCode}
+                      onChange={(e) => handleCourseCodeChange(e, index)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select Course Code</option>
+                      {getAvailableCourseOptions(index).map((courseOption) => (
+                        <option key={courseOption.code} value={courseOption.code}>
+                          {courseOption.code}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Course Name</label>
-                  <select
-                    name="courseName"
-                    value={formData.courseName}
-                    onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    disabled // Disable input, as it will be set automatically
-                  >
-                    <option value="">Select Course Name</option>
-                    {courseOptions.map((course) => (
-                      <option key={course.name} value={course.name}>
-                        {course.name}
-                      </option>
-                    ))}
-                  </select>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600 mb-2">Course Name</label>
+                    <select
+                      name="courseName"
+                      value={course.courseName}
+                      onChange={(e) => handleCourseNameChange(e, index)}
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    >
+                      <option value="">Select Course Name</option>
+                      {getAvailableCourseOptions(index).map((courseOption) => (
+                        <option key={courseOption.name} value={courseOption.name}>
+                          {courseOption.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Remove Button */}
+                  <div className="flex items-center justify-end">
+                    {courseList.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeCourseFields(index)}
+                        className="text-red-500 hover:text-red-700 font-semibold text-sm"
+                      >
+                        Remove
+                      </button>
+                    )}
+                  </div>
                 </div>
-              </div>
+              ))}
+
+              {/* Add Course Button */}
+              {courseList.length < 5 && (
+                <div className="flex justify-center mt-2">
+                  <button
+                    type="button"
+                    onClick={addCourseFields}
+                    className="text-blue-500 hover:text-blue-700 font-semibold text-sm flex items-center"
+                  >
+                    <span className="mr-2">+</span> Add Another Course
+                  </button>
+                </div>
+              )}
 
               <div>
                 <label className="block text-sm font-medium text-gray-600 mb-2">Description</label>
@@ -211,7 +343,6 @@ const CreateClass = () => {
                   Create Class
                 </button>
               </div>
-
             </form>
           </div>
         </div>

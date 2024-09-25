@@ -52,7 +52,7 @@ const createClass = async (classData,token) => {
 
 const getTeachers = async () => {
   try {
-    const token = localStorage.getItem('token'); // Retrieve the token from localStorage or wherever it's stored
+    const token = localStorage.getItem('token'); 
     const response = await axios.get(`${API_URL}/admin/users/getTeachers`, {
       headers: {
         Authorization: `Bearer ${token}` // Include the Bearer token in the Authorization header
@@ -66,6 +66,52 @@ const getTeachers = async () => {
   }
 };
 
+const getStudents = async () => {
+  try {
+    const token = localStorage.getItem('token'); 
+    const response = await axios.get(`${API_URL}/teacher/users/getStudents`, {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    console.log('Students data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching teachers data:', error);
+    throw error;
+  }
+};
+const getAllAssignedClasses = async () => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.get(`${API_URL}/teacher/my-classes`, {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    console.log(response.data.data.classes); 
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching classes:', error.response?.data || error.message);
+  }
+};
 
+const addStudentToClass = async (classId, studentId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.post(`${API_URL}/teacher/class/${classId}/students`, {
+      studentId 
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the authorization token in the headers
+      }
+    });
+    
+    console.log(response.data.message); // Log success message
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error adding student to class:', error.response?.data || error.message);
+  }
+};
 
-export { login, signup,createClass,getTeachers};
+export { login, signup,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass};

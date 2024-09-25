@@ -51,5 +51,5 @@ app.all('*', (req, res) => {
 // Start the server
 const PORT = config.port || 3000;
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  console.log(`Server running on port ${PORT}`);
 });

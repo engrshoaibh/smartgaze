@@ -4,6 +4,7 @@ import Sidebar from '../components/side_nav';
 import Header from '../components/header';
 import { useState, useEffect } from 'react';
 import { signup } from '../../../../../Backend/utils/api';
+
 const ImageUpload = ({ image, setImage }) => {
   const handleImageChange = (event) => {
     const file = event.target.files[0];
@@ -51,6 +52,133 @@ export default function MainDashboard() {
   const [isFormValid, setIsFormValid] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [imageError, setImageError] = useState(false);
+  const [batches, setBatches] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [classes, setClasses] = useState([]);
+  const [sections] = useState(['Select Class','A', 'B']); // Sections for students
+
+  useEffect(() => {
+    
+    setFormValues({
+      name: '',
+      email: '',
+      phone: '',
+      batch: '',
+      class: '',
+      section: '',
+      department: ''
+    });
+    setErrors({});
+    setImage('/images/add.jpg'); // Reset the image to default
+    setImageError(false);
+    setIsSubmitted(false); 
+
+    setBatches([
+      { value: '', label: 'Select Batch' },
+      { value: 'sp24', label: 'Spring 2024 (SP24)' },
+      { value: 'fa24', label: 'Fall 2024 (FA24)' },
+      { value: 'fa23', label: 'Fall 2023 (FA23)' },
+      { value: 'sp23', label: 'Spring 2023 (SP23)' },
+      { value: 'fa22', label: 'Fall 2022 (FA22)' },
+      { value: 'sp22', label: 'Spring 2022 (SP22)' },
+      { value: 'fa21', label: 'Fall 2021 (FA21)' },
+      { value: 'sp21', label: 'Spring 2021 (SP21)' }
+    ]);
+
+    // Fetch departments when the component mounts
+    setDepartments([
+      { value: '', label: 'Select Department' },
+      { value: 'cs', label: 'Computer Science' },
+      { value: 'ee', label: 'Electrical Engineering' },
+      { value: 'me', label: 'Mechanical Engineering' },
+      { value: 'ce', label: 'Civil Engineering' },
+      { value: 'ba', label: 'Business Administration' },
+      { value: 'math', label: 'Mathematics' },
+      { value: 'phy', label: 'Physics' },
+      { value: 'che', label: 'Chemistry' },
+      { value: 'bio', label: 'Biology' },
+      { value: 'soc', label: 'Social Sciences' },
+      { value: 'hum', label: 'Humanities' },
+      { value: 'law', label: 'Law' },
+      { value: 'arch', label: 'Architecture' },
+      { value: 'media', label: 'Media and Communication' }
+
+    ]);
+
+  }, [role]);
+
+  useEffect(() => {
+    const departmentClasses = {
+      cs: [
+        { value: '', label: 'Select Class' },
+        { value: 'bse', label: 'Bachelor of Software Engineering (BSE)' },
+        { value: 'bcs', label: 'Bachelor of Computer Science (BCS)' },
+        { value: 'bai', label: 'Bachelor of Artificial Intelligence (BAI)' },
+        { value: 'bds', label: 'Bachelor of Data Science (BDS)' }
+      ],
+      ee: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsee', label: 'Bachelor of Science in Electrical Engineering (BSEE)' }
+      ],
+      me: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsme', label: 'Bachelor of Science in Mechanical Engineering (BSME)' }
+      ],
+      ce: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsce', label: 'Bachelor of Science in Civil Engineering (BSCE)' }
+      ],
+      ba: [
+        { value: '', label: 'Select Class' },
+        { value: 'bba', label: 'Bachelor of Business Administration (BBA)' }
+      ],
+      math: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsmath', label: 'Bachelor of Science in Mathematics (BS Math)' }
+      ],
+      phy: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsphy', label: 'Bachelor of Science in Physics (BS Physics)' }
+      ],
+      che: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsche', label: 'Bachelor of Science in Chemistry (BS Chemistry)' }
+      ],
+      bio: [
+        { value: '', label: 'Select Class' },
+        { value: 'bsbio', label: 'Bachelor of Science in Biology (BS Biology)' }
+      ],
+      soc: [
+        { value: '', label: 'Select Class' },
+        { value: 'bapsych', label: 'Bachelor of Arts in Psychology (BAP)' },
+        { value: 'bas', label: 'Bachelor of Arts in Sociology (BAS)' },
+        { value: 'bses', label: 'Bachelor of Science in Environmental Science (BSES)' },
+        { value: 'bed', label: 'Bachelor of Education (BEd)' }
+      ],
+      hum: [
+        { value: '', label: 'Select Class' },
+        { value: 'baeng', label: 'Bachelor of Arts in English Literature (BA English)' }
+      ],
+      law: [
+        { value: '', label: 'Select Class' },
+        { value: 'llb', label: 'Bachelor of Laws (LLB)' }
+      ],
+      arch: [
+        { value: '', label: 'Select Class' },
+        { value: 'barch', label: 'Bachelor of Architecture (BArch)' }
+      ],
+      media: [
+        { value: '', label: 'Select Class' },
+        { value: 'bms', label: 'Bachelor of Media Studies (BMS)' }
+      ]
+    };
+
+    const studentClasses = [{ value: '', label: 'Select Class' }];
+    for (const classes of Object.values(departmentClasses)) {
+      studentClasses.push(...classes.slice(1));
+    }
+    setClasses(studentClasses);
+  }, [formValues.department]);
 
   useEffect(() => {
     const isValid = validateForm();
@@ -101,7 +229,7 @@ export default function MainDashboard() {
           section: formValues.section,
           batch: formValues.batch,
           department: formValues.department,
-          profileImage: image // Add the image to userData
+          profileImage: image 
         };
 
         const result = await signup(userData);
@@ -189,79 +317,101 @@ export default function MainDashboard() {
                   />
                   {isSubmitted && errors.phone && <p className="text-red-500 text-sm">{errors.phone}</p>}
                 </div>
+
+
               </div>
 
-              {/* Left Side: Class, Section, Batch for Student or Department for Teacher */}
+              {/* Left Side: Role Specific Fields */}
               <div className="w-full md:w-1/2 pr-2 -mt-28">
+                {/* Image Upload */}
                 <div className="flex justify-center items-center">
-                  <div className="flex justify-center items-center -ml-24">
-                    <ImageUpload image={image || '/images/add.jpg'} setImage={setImage} />
-                  </div>
+
+                  <ImageUpload image={image} setImage={setImage} />
+                  {isSubmitted && imageError && <p className="text-red-500 text-sm">Please upload an image</p>}
                 </div>
-
-                <label className="block text-sm font-semibold text-gray-600 mb-2 py-2">University Information</label>
-
+                {/* Fields for Students */}
                 {role === 'student' && (
                   <>
+                    <label className="block text-sm font-semibold text-gray-600 mb-2 py-2">Student Information</label>
+
                     <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-600 mb-2">Class</label>
-                      <input
-                        type="text"
+                      <select
                         id="class"
                         value={formValues.class}
                         onChange={handleChange}
                         className={`w-3/4 px-4 py-2 border ${isSubmitted && errors.class ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="Enter class"
-                      />
+                      >
+                        {classes.map((cls) => (
+                          <option key={cls.value} value={cls.label}>
+                            {cls.label}
+                          </option>
+                        ))}
+                      </select>
                       {isSubmitted && errors.class && <p className="text-red-500 text-sm">{errors.class}</p>}
                     </div>
 
                     <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-600 mb-2">Section</label>
-                      <input
-                        type="text"
+                      <select
                         id="section"
                         value={formValues.section}
                         onChange={handleChange}
                         className={`w-3/4 px-4 py-2 border ${isSubmitted && errors.section ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="Enter section"
-                      />
+                      >
+                        {sections.map((section) => (
+                          <option key={section} value={section}>
+                            {section}
+                          </option>
+                        ))}
+                      </select>
                       {isSubmitted && errors.section && <p className="text-red-500 text-sm">{errors.section}</p>}
                     </div>
 
                     <div className="mb-2">
                       <label className="block text-sm font-medium text-gray-600 mb-2">Batch</label>
-                      <input
-                        type="text"
+                      <select
                         id="batch"
                         value={formValues.batch}
                         onChange={handleChange}
                         className={`w-3/4 px-4 py-2 border ${isSubmitted && errors.batch ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                        placeholder="Enter batch"
-                      />
+                      >
+                        {batches.map((batch) => (
+                          <option key={batch.value} value={batch.value}>
+                            {batch.label}
+                          </option>
+                        ))}
+                      </select>
                       {isSubmitted && errors.batch && <p className="text-red-500 text-sm">{errors.batch}</p>}
                     </div>
                   </>
                 )}
 
+                {/* Fields for Teachers */}
                 {role === 'teacher' && (
-                  <div className="mb-2">
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Department</label>
-                    <input
-                      type="text"
-                      id="department"
-                      value={formValues.department}
-                      onChange={handleChange}
-                      className={`w-3/4 px-4 py-2 border ${isSubmitted && errors.department ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                      placeholder="Enter department"
-                    />
-                    {isSubmitted && errors.department && <p className="text-red-500 text-sm">{errors.department}</p>}
-                  </div>
+                  <>
+                    <label className="block text-sm font-semibold text-gray-600 mb-2 py-2">Teacher Information</label>
+
+                    <div className="mb-2">
+                      <label className="block text-sm font-medium text-gray-600 mb-2">Department</label>
+                      <select
+                        id="department"
+                        value={formValues.department}
+                        onChange={handleChange}
+                        className={`w-3/4 px-4 py-2 border ${isSubmitted && errors.department ? 'border-red-500' : 'border-gray-300'} rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                      >
+                        {departments.map((dept) => (
+                          <option key={dept.value} value={dept.value}>
+                            {dept.label}
+                          </option>
+                        ))}
+                      </select>
+                      {isSubmitted && errors.department && <p className="text-red-500 text-sm">{errors.department}</p>}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
-
-            {imageError && <p className="text-red-500 text-sm text-center">Profile image is required</p>}
 
             {/* Create Profile Button */}
             <div className="mt-8 text-center">

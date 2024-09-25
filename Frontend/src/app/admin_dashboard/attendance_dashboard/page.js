@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
 import { Bar } from 'react-chartjs-2';
@@ -9,6 +9,7 @@ import jsPDF from 'jspdf';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { CSVLink } from 'react-csv';
+import { ThemeContext } from '../../../context/ThemeContext';   // Import ThemeContext for dark mode
 
 const attendanceRecords = [
   { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '09:00 AM', present: 28, absent: 2 },
@@ -35,6 +36,8 @@ const AttendanceDashboard = () => {
   const [selectedReport, setSelectedReport] = useState(null);
   const [selectedGraphClass, setSelectedGraphClass] = useState('');
   const [selectedGraphTeacher, setSelectedGraphTeacher] = useState('');
+
+  const { theme } = useContext(ThemeContext); // Get the current theme
 
   useEffect(() => {
     const classList = [...new Set(attendanceRecords.map((record) => record.class))];
@@ -161,14 +164,14 @@ const AttendanceDashboard = () => {
   const tableHeaders = ['Time', 'Class', 'Teacher', 'Present', 'Absent'];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className={`flex min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
 
-        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20" style={{ height: '450px' }}>
+        <div className={`flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`} style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg">
+          <div className={`flex-1 p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
             {loading ? (
               <p>Loading data...</p>
             ) : (
@@ -178,7 +181,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphClass}
                     onChange={onGraphClassChange}
-                    className="border border-gray-300 rounded-md px-2 py-1"
+                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1`}
                   >
                     <option value="">All Classes</option>
                     {classes.map((className, idx) => (
@@ -191,7 +194,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphTeacher}
                     onChange={onGraphTeacherChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 ml-2"
+                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 ml-2`}
                   >
                     <option value="">All Teachers</option>
                     {teachers.map((teacher, idx) => (
@@ -208,15 +211,15 @@ const AttendanceDashboard = () => {
           </div>
 
           {/* Filters Section */}
-          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg">
+          <div className={`w-full lg:w-1/3 p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
             <div className="flex space-x-4 mb-4">
               {/* Existing Filters */}
               <div className="flex-1">
-                <label className="block text-gray-700">Filter by Class</label>
+                <label className="block">Filter by Class</label>
                 <select
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                  className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full`}
                 >
                   <option value="">All</option>
                   {classes.map((className, idx) => (
@@ -228,11 +231,11 @@ const AttendanceDashboard = () => {
               </div>
 
               <div className="flex-1">
-                <label className="block text-gray-700">Filter by Teacher</label>
+                <label className="block">Filter by Teacher</label>
                 <select
                   value={selectedTeacher}
                   onChange={(e) => setSelectedTeacher(e.target.value)}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                  className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full`}
                 >
                   <option value="">All</option>
                   {teachers.map((teacher, idx) => (
@@ -244,7 +247,7 @@ const AttendanceDashboard = () => {
               </div>
 
               <div className="flex-1">
-                <label className="block text-gray-700">Date Range</label>
+                <label className="block">Date Range</label>
                 <div className="flex space-x-2">
                   <DatePicker
                     selected={startDate}
@@ -252,7 +255,7 @@ const AttendanceDashboard = () => {
                     selectsStart
                     startDate={startDate}
                     endDate={endDate}
-                    className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full text-sm`}
                     placeholderText="Start Date"
                   />
                   <DatePicker
@@ -261,7 +264,7 @@ const AttendanceDashboard = () => {
                     selectsEnd
                     startDate={startDate}
                     endDate={endDate}
-                    className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full text-sm`}
                     placeholderText="End Date"
                   />
                 </div>
@@ -270,7 +273,7 @@ const AttendanceDashboard = () => {
 
             <button
               onClick={handleFilterChange}
-              className="bg-gray-300 text-black px-4 py-2 rounded"
+              className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
             >
               Apply Filters
             </button>
@@ -298,28 +301,30 @@ const AttendanceDashboard = () => {
         {/* Modal for Selected Report */}
         {modalIsOpen && selectedReport && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-md mx-auto">
+            <div className={`p-6 w-full max-w-md mx-auto rounded-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
               <h2 className="text-2xl font-semibold mb-4">
                 {selectedReport[0].class} Attendance Report
               </h2>
               <p>Date: {selectedReport[0].date}</p>
-              
-              <table className="min-w-full border-collapse border border-gray-200">
+
+              <table className={`min-w-full border-collapse border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
                 <thead>
                   <tr>
                     {tableHeaders.map((header, idx) => (
-                      <th key={idx} className="border border-gray-200 p-2">{header}</th>
+                      <th key={idx} className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                        {header}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {selectedReport.map((record, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-200 p-2">{record.time}</td>
-                      <td className="border border-gray-200 p-2">{record.class}</td>
-                      <td className="border border-gray-200 p-2">{record.teacher}</td>
-                      <td className="border border-gray-200 p-2">{record.present}</td>
-                      <td className="border border-gray-200 p-2">{record.absent}</td>
+                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.time}</td>
+                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.class}</td>
+                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.teacher}</td>
+                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.present}</td>
+                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.absent}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -328,7 +333,7 @@ const AttendanceDashboard = () => {
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={() => exportToPDF(selectedReport)}
-                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
                 >
                   Export as PDF
                 </button>
@@ -343,13 +348,13 @@ const AttendanceDashboard = () => {
                     { label: 'Absent', key: 'absent' },
                   ]}
                   filename={`attendance_report_${selectedReport[0].class}_${selectedReport[0].date}.csv`}
-                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
                 >
                   Export as CSV
                 </CSVLink>
                 <button
                   onClick={() => setModalIsOpen(false)}
-                  className="bg-gray-300 text-black px-4 py-2 rounded"
+                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
                 >
                   Close
                 </button>

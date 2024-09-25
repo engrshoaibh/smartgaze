@@ -1,12 +1,12 @@
- 
+
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-
+const nodemailer = require('nodemailer');
 exports.signup = async (req, res) => {
   try {
     const { name, email, phoneNumber, password, role, classInfo, section, batch, department, profileImage } = req.body;
 
-    // Prepare user data based on role
+
     let userData;
     if (role === 'student') {
       userData = {
@@ -39,6 +39,35 @@ exports.signup = async (req, res) => {
 
     // Create the new user
     const newUser = await User.create(userData);
+    // Setup Nodemailer transport
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
+      auth: {
+          user: '201400124@gift.edu.pk',
+          pass: '201400124'
+      }
+  });
+    
+
+    // Email options
+    const mailOptions = {
+      from: 'gaze.smart1@gmail.com',
+      to: newUser.email, 
+      subject: 'Welcome to Our Service',
+      text: `Hello ${newUser.name},\n\nYour account has been created successfully.\n\nYour credentials are:\nEmail: ${newUser.email}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you for joining us!`,
+      html: `<p>Hello ${newUser.name},</p>
+         <p>Your account has been created successfully.</p>
+         <p>Your credentials are:</p>
+         <p>Email: <strong>${newUser.email}</strong><br>Password: <strong>${password}</strong></p>
+         <p>Please keep this information safe.</p>
+         <p>Thank you for joining us!</p>`,
+    };
+
+    // Send the email
+    await transporter.sendMail(mailOptions);
 
     // Respond with success
     res.status(201).json({

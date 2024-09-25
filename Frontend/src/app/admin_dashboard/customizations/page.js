@@ -1,43 +1,47 @@
-"use client";  // Properly mark this component as a Client Component
+'use client';  // Properly mark this component as a Client Component
 
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
+import { ThemeContext } from '../../../context/ThemeContext';  // Import ThemeContext
 import { FaUser, FaChartLine, FaCalendar } from 'react-icons/fa';
 
-export default function MainDashboard({ children }) {
-  // State for dark mode toggle and dropdowns
-  const [isDarkMode, setIsDarkMode] = useState(false);
+export default function MainDashboard() {
+  // Use ThemeContext to manage dark mode globally
+  const { theme, toggleTheme } = useContext(ThemeContext);  // Get theme and toggleTheme from context
   const [attendanceFrequency, setAttendanceFrequency] = useState('30 mins');
   const [attendanceThreshold, setAttendanceThreshold] = useState('50%');
 
-  // Function to toggle dark mode
-  const toggleDarkMode = () => {
-    setIsDarkMode(!isDarkMode);
-  };
-
   return (
-    <div className={`flex min-h-screen ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-100 text-black'}`}>
+    <div className={`flex min-h-screen bg-gray-100 dark:bg-gray-900 text-black dark:text-gray-200`}>
       <Sidebar />
-      <main className="flex-1 p-4">
+      <main className="flex-1 p-6">
         <Header />
 
         {/* Form Section */}
-        <div className="space-y-4 mt-32">
+        <div className="space-y-8 mt-16">
           {/* Dark Mode Toggle */}
-          <div className="flex items-center justify-between ml-32">
-            <label className="text-lg">Dark Mode</label>
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <label className="text-lg font-semibold">Dark Mode</label>
             <label className="inline-flex relative items-center cursor-pointer">
-              <input type="checkbox" className="sr-only peer" checked={isDarkMode} onChange={toggleDarkMode} />
-              <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:translate-x-full peer-checked:border-white mr-72"></div>
+              <input
+                type="checkbox"
+                className="sr-only peer"
+                checked={theme === 'dark'}  // Check if the current theme is dark
+                onChange={toggleTheme}  // Call toggleTheme from context
+              />
+              <div className="w-11 h-6 bg-gray-200 dark:bg-gray-700 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:translate-x-full peer-checked:border-white"></div>
             </label>
           </div>
 
           {/* Customize attendance frequency */}
-          <div className="flex items-center justify-between ml-32">
-            <label className="text-lg">Customize attendance instance frequency</label>
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <label htmlFor="attendance-frequency" className="text-lg font-semibold">
+              Customize Attendance Instance Frequency
+            </label>
             <select
-              className="p-2 border border-gray-300 rounded-md mr-64 w-32"
+              id="attendance-frequency"
+              className="p-2 border border-gray-300 rounded-md w-40 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={attendanceFrequency}
               onChange={(e) => setAttendanceFrequency(e.target.value)}
             >
@@ -49,10 +53,13 @@ export default function MainDashboard({ children }) {
           </div>
 
           {/* Customize attendance threshold */}
-          <div className="flex items-center justify-between ml-32">
-            <label className="text-lg">Customize attendance threshold</label>
+          <div className="flex items-center justify-between max-w-lg mx-auto">
+            <label htmlFor="attendance-threshold" className="text-lg font-semibold">
+              Customize Attendance Threshold
+            </label>
             <select
-              className="p-2 border border-gray-300 rounded-md mr-64 w-32"
+              id="attendance-threshold"
+              className="p-2 border border-gray-300 rounded-md w-40 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600"
               value={attendanceThreshold}
               onChange={(e) => setAttendanceThreshold(e.target.value)}
             >
@@ -64,11 +71,11 @@ export default function MainDashboard({ children }) {
           </div>
 
           {/* Confirm Changes Button */}
-          <div className="flex justify-center mt-128">
+          <div className="flex justify-center mt-12">
             <button className="w-64 bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white py-2 rounded-lg font-semibold 
                              hover:bg-gradient-to-br hover:from-[#2B3B4D] hover:to-[#4F6770] 
                              active:bg-gradient-to-br active:from-[#0E1B2A] active:to-[#2E4047] 
-                             transition duration-300 mt-16">
+                             transition duration-300">
               Confirm Changes
             </button>
           </div>

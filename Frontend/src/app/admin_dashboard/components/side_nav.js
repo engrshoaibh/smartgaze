@@ -1,5 +1,6 @@
 "use client";
-import { useState } from 'react';
+
+import { useState, useContext } from 'react';
 import { usePathname } from 'next/navigation';
 import {
   FaChartLine,
@@ -12,10 +13,12 @@ import {
   FaChevronLeft,
   FaChalkboardTeacher
 } from 'react-icons/fa';
+import { ThemeContext } from '../../../context/ThemeContext'; // Import the ThemeContext
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const pathname = usePathname();
+  const { theme } = useContext(ThemeContext); // Get the current theme
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
@@ -27,7 +30,7 @@ export default function Sidebar() {
     <div
       className={`group flex flex-col ${
         isExpanded ? 'w-64' : 'w-20'
-      } bg-white text-black transition-all duration-300 shadow-lg relative`}
+      } bg-white dark:bg-gray-900 text-black dark:text-white transition-all duration-300 shadow-lg relative`}
     >
       <div className="flex items-center p-4 relative">
         <div className="flex items-center">
@@ -37,12 +40,16 @@ export default function Sidebar() {
             className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700"
           />
           {isExpanded && (
-            <span className="ml-3 text-lg font-normal text-gray-700">Smart Gaze</span>
+            <span className="ml-3 text-lg font-normal text-gray-700 dark:text-gray-300">
+              Smart Gaze
+            </span>
           )}
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-1 text-gray-600 dark:text-gray-300 focus:outline-none absolute -right-3 top-3 bg-gray-200 dark:bg-gray-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="p-1 text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 
+                     focus:outline-none absolute -right-3 top-3 rounded-full opacity-0 group-hover:opacity-100 
+                     transition-opacity duration-300"
         >
           {isExpanded ? <FaChevronLeft className="text-sm" /> : <FaChevronRight className="text-sm" />}
         </button>
@@ -54,7 +61,7 @@ export default function Sidebar() {
             { name: 'Main Dashboard', icon: FaChartLine, href: '/admin_dashboard' },
             { name: 'Attendance Dashboard', icon: FaUserCheck, href: '/admin_dashboard/attendance_dashboard' },
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/admin_dashboard/emotionalstate_dashboard' },
-            { name: 'Attention Level Dashboard',  icon: FaBrain, href: '/admin_dashboard/attentionlevel_dashboard' },
+            { name: 'Attention Level Dashboard', icon: FaBrain, href: '/admin_dashboard/attentionlevel_dashboard' },
             { name: 'User Profile Creation', icon: FaUserPlus, href: '/admin_dashboard/userprofile_creation' },
             { name: 'Customizations', icon: FaCogs, href: '/admin_dashboard/customizations' },
             { name: 'Create Class', icon: FaChalkboardTeacher, href: '/admin_dashboard/class_creation' },
@@ -62,11 +69,10 @@ export default function Sidebar() {
             <li key={item.name}>
               <a
                 href={item.href}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
-                  isActiveRoute(item.href)
+                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 
+                  ${isActiveRoute(item.href)
                     ? 'bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white shadow-md'
-                    : 'hover:bg-gray-200 hover:text-white dark:hover:bg-gray-800 dark:hover:text-white'
-                }`}
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-white'}`}
               >
                 <item.icon className="text-lg mr-3" />
                 {isExpanded && <span className="text-sm font-normal">{item.name}</span>}
