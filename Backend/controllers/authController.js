@@ -46,8 +46,8 @@ exports.signup = async (req, res) => {
       port: 587,
       secure: false,
       auth: {
-          user: '201400124@gift.edu.pk',
-          pass: '201400124'
+          user: 'gaze.smart1@gmail.com',
+          pass: 'smartgaze@123'
       }
   });
     
