@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { createClass, getTeachers } from '../../../../../Backend/utils/api';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
-
+import SuccessMessage from '../components/SuccessMessage';
 const CreateClass = () => {
+  const [isSuccess, setIsSuccess] = useState(false);
   const courseOptions = [
     { code: 'CS101', name: 'Introduction to Computer Science' },
     { code: 'CS201', name: 'Data Structures and Algorithms' },
@@ -15,8 +16,72 @@ const CreateClass = () => {
   ];
 
   const sectionOptions = ['A', 'B'];
-
+  const departmentClasses = {
+    cs: [
+      { value: '', label: 'Select Class' },
+      { value: 'bse', label: 'Bachelor of Software Engineering (BSE)' },
+      { value: 'bcs', label: 'Bachelor of Computer Science (BCS)' },
+      { value: 'bai', label: 'Bachelor of Artificial Intelligence (BAI)' },
+      { value: 'bds', label: 'Bachelor of Data Science (BDS)' }
+    ],
+    ee: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsee', label: 'Bachelor of Science in Electrical Engineering (BSEE)' }
+    ],
+    me: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsme', label: 'Bachelor of Science in Mechanical Engineering (BSME)' }
+    ],
+    ce: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsce', label: 'Bachelor of Science in Civil Engineering (BSCE)' }
+    ],
+    ba: [
+      { value: '', label: 'Select Class' },
+      { value: 'bba', label: 'Bachelor of Business Administration (BBA)' }
+    ],
+    math: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsmath', label: 'Bachelor of Science in Mathematics (BS Math)' }
+    ],
+    phy: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsphy', label: 'Bachelor of Science in Physics (BS Physics)' }
+    ],
+    che: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsche', label: 'Bachelor of Science in Chemistry (BS Chemistry)' }
+    ],
+    bio: [
+      { value: '', label: 'Select Class' },
+      { value: 'bsbio', label: 'Bachelor of Science in Biology (BS Biology)' }
+    ],
+    soc: [
+      { value: '', label: 'Select Class' },
+      { value: 'bapsych', label: 'Bachelor of Arts in Psychology (BAP)' },
+      { value: 'bas', label: 'Bachelor of Arts in Sociology (BAS)' },
+      { value: 'bses', label: 'Bachelor of Science in Environmental Science (BSES)' },
+      { value: 'bed', label: 'Bachelor of Education (BEd)' }
+    ],
+    hum: [
+      { value: '', label: 'Select Class' },
+      { value: 'baeng', label: 'Bachelor of Arts in English Literature (BA English)' }
+    ],
+    law: [
+      { value: '', label: 'Select Class' },
+      { value: 'llb', label: 'Bachelor of Laws (LLB)' }
+    ],
+    arch: [
+      { value: '', label: 'Select Class' },
+      { value: 'barch', label: 'Bachelor of Architecture (BArch)' }
+    ],
+    media: [
+      { value: '', label: 'Select Class' },
+      { value: 'bms', label: 'Bachelor of Media Studies (BMS)' }
+    ]
+  };
   const [teacherOptions, setTeacherOptions] = useState([]);
+  const [teacherFilterData, setTeacherFilterData] = useState([]);
   const [classes, setClasses] = useState([]);
   const [formData, setFormData] = useState({
     className: '',
@@ -24,14 +89,20 @@ const CreateClass = () => {
     description: '',
     teacher: '',
   });
-
   const [courseList, setCourseList] = useState([{ courseCode: '', courseName: '' }]);
+  const [selectedClassName, setSelectedClassName] = useState('');
+  useEffect(() => {
+    if (formData.className) {
+      filterTeacherProgramWise();
+    }
+  }, [formData.className]);
 
   useEffect(() => {
     const fetchTeachers = async () => {
       try {
         const data = await getTeachers();
         setTeacherOptions(data.data.teachers);
+
       } catch (error) {
         console.error('Error fetching teachers:', error);
       }
@@ -40,75 +111,13 @@ const CreateClass = () => {
     fetchTeachers();
   }, []);
   useEffect(() => {
-    const departmentClasses = {
-      cs: [
-        { value: '', label: 'Select Class' },
-        { value: 'bse', label: 'Bachelor of Software Engineering (BSE)' },
-        { value: 'bcs', label: 'Bachelor of Computer Science (BCS)' },
-        { value: 'bai', label: 'Bachelor of Artificial Intelligence (BAI)' },
-        { value: 'bds', label: 'Bachelor of Data Science (BDS)' }
-      ],
-      ee: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsee', label: 'Bachelor of Science in Electrical Engineering (BSEE)' }
-      ],
-      me: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsme', label: 'Bachelor of Science in Mechanical Engineering (BSME)' }
-      ],
-      ce: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsce', label: 'Bachelor of Science in Civil Engineering (BSCE)' }
-      ],
-      ba: [
-        { value: '', label: 'Select Class' },
-        { value: 'bba', label: 'Bachelor of Business Administration (BBA)' }
-      ],
-      math: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsmath', label: 'Bachelor of Science in Mathematics (BS Math)' }
-      ],
-      phy: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsphy', label: 'Bachelor of Science in Physics (BS Physics)' }
-      ],
-      che: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsche', label: 'Bachelor of Science in Chemistry (BS Chemistry)' }
-      ],
-      bio: [
-        { value: '', label: 'Select Class' },
-        { value: 'bsbio', label: 'Bachelor of Science in Biology (BS Biology)' }
-      ],
-      soc: [
-        { value: '', label: 'Select Class' },
-        { value: 'bapsych', label: 'Bachelor of Arts in Psychology (BAP)' },
-        { value: 'bas', label: 'Bachelor of Arts in Sociology (BAS)' },
-        { value: 'bses', label: 'Bachelor of Science in Environmental Science (BSES)' },
-        { value: 'bed', label: 'Bachelor of Education (BEd)' }
-      ],
-      hum: [
-        { value: '', label: 'Select Class' },
-        { value: 'baeng', label: 'Bachelor of Arts in English Literature (BA English)' }
-      ],
-      law: [
-        { value: '', label: 'Select Class' },
-        { value: 'llb', label: 'Bachelor of Laws (LLB)' }
-      ],
-      arch: [
-        { value: '', label: 'Select Class' },
-        { value: 'barch', label: 'Bachelor of Architecture (BArch)' }
-      ],
-      media: [
-        { value: '', label: 'Select Class' },
-        { value: 'bms', label: 'Bachelor of Media Studies (BMS)' }
-      ]
-    };
 
     const studentClasses = [{ value: '', label: 'Select Class' }];
     for (const classes of Object.values(departmentClasses)) {
       studentClasses.push(...classes.slice(1));
     }
+    console.log(studentClasses);
+
     setClasses(studentClasses);
   }, []);
 
@@ -138,9 +147,16 @@ const CreateClass = () => {
     setCourseList(updatedCourses);
   };
 
+
   const handleChange = (e) => {
     const { name, value } = e.target;
-
+    if (name === 'className') {
+      if (value === selectedClassName) {
+        filterTeacherProgramWise();
+      } else {
+        setSelectedClassName(value);
+      }
+    }
     setFormData((prevFormData) => ({
       ...prevFormData,
       [name]: value,
@@ -159,12 +175,37 @@ const CreateClass = () => {
       setCourseList(updatedCourses);
     }
   };
+  const filterTeacherProgramWise = () => {
+    const program = formData.className;
+    if (!program) return; 
+
+    const filterTeacher = [];
+
+    teacherOptions.forEach((teacher) => {
+      for (const departmentKey in departmentClasses) {
+        if (teacher.department === departmentKey) {
+          const classes = departmentClasses[departmentKey];
+          for (const item of classes) {
+           
+            if (item.label === program) {
+              console.log(teacher)
+              filterTeacher.push(teacher);
+            }
+          }
+        }
+      }
+    });
+    
+    setTeacherFilterData(filterTeacher);
+    
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.className || !formData.sectionName || !formData.teacher || 
-        courseList.some(course => !course.courseCode || !course.courseName)) {
+    if (!formData.className || !formData.sectionName || !formData.teacher ||
+      courseList.some(course => !course.courseCode || !course.courseName)) {
       alert('Please fill out all required fields.');
       return;
     }
@@ -181,11 +222,15 @@ const CreateClass = () => {
     try {
       const token = localStorage.getItem('token');
       const response = await createClass(submissionData, token);
-      console.log(response);
+      if(response.status === "success"){
+        setIsSuccess(true);
+      }
+      
     } catch (error) {
       console.error('Error creating class:', error);
     }
   };
+
 
 
   const getAvailableCourseOptions = (index) => {
@@ -193,6 +238,9 @@ const CreateClass = () => {
     return courseOptions.filter(course => !selectedCourseCodes.includes(course.code) || course.code === courseList[index].courseCode);
   };
 
+  if (isSuccess) {
+    return <SuccessMessage onDismiss={() => setIsSuccess(false)} />;
+  }
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
@@ -205,19 +253,20 @@ const CreateClass = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-2">Class Name</label>
+
                   <select
-                        id="class"
-                        value={formData.class}
-                        onChange={handleChange}
-                        className={`w-3/4 px-4 py-2 border 'border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
-                      >
-                        {classes.map((cls) => (
-                          <option key={cls.value} value={cls.label}>
-                            {cls.label}
-                          </option>
-                        ))}
-                      </select>
-                      
+                    name="className"
+                    value={formData.className}
+                    onChange={handleChange}
+                    className={`w-3/4 px-4 py-2 border 'border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                  >
+                    {classes.map((cls) => (
+                      <option key={cls.value} value={cls.label}>
+                        {cls.label}
+                      </option>
+                    ))}
+                  </select>
+
                 </div>
 
                 <div>
@@ -324,7 +373,7 @@ const CreateClass = () => {
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select Teacher</option>
-                  {teacherOptions.map((teacher) => (
+                  {teacherFilterData.map((teacher) => (
                     <option key={teacher._id} value={teacher._id}>
                       {teacher.name}
                     </option>
