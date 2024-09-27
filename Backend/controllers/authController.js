@@ -94,7 +94,7 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    console.log(email, password)
     let user;
 
     // If email contains '@', treat it as an email, otherwise, it's rollno
@@ -120,7 +120,7 @@ exports.login = async (req, res) => {
       // Student login via rollno
       const rollno = email; // If it's not an email, treat the input as rollno
       user = await User.findOne({ rollno });
-
+      
       if (!user || !(await user.correctPassword(password, user.password))) {
         return res.status(401).json({
           status: 'fail',
@@ -137,10 +137,11 @@ exports.login = async (req, res) => {
       }
     }
 
-    // Generate JWT token
+
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });
+    console.log(token);
 
     res.status(200).json({
       status: 'success',
@@ -170,7 +171,7 @@ exports.resetPassword = async (req, res) => {
 
     const newPassword = generatePassword(); 
 
-    user.password = await bcrypt.hash(newPassword, 12); 
+    user.password = newPassword;
 
     await user.save(); 
 
