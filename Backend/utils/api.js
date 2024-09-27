@@ -9,7 +9,6 @@ const login = async (data) => {
   return response.data;
 };
 
-// Signup API
 const signup = async (userData) => {
   try {
     const response = await axios.post(`${API_URL}/auth/signup`, userData, {
@@ -72,7 +71,7 @@ const getTeachers = async () => {
     const token = localStorage.getItem('token'); 
     const response = await axios.get(`${API_URL}/admin/users/getTeachers`, {
       headers: {
-        Authorization: `Bearer ${token}` // Include the Bearer token in the Authorization header
+        Authorization: `Bearer ${token}` 
       }
     });
     console.log('Teachers data:', response.data);
@@ -131,4 +130,70 @@ const addStudentToClass = async (classId, studentId) => {
   }
 };
 
-export { login, signup,forgotPassword,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass};
+const customizations = async (threshold, imageInterval) => {
+  try {
+    const token = localStorage.getItem('token');
+
+    // Check if token exists
+    if (!token) {
+      return 'Authorization token is missing';
+    }
+
+    // Log payload for debugging
+    console.log({ threshold, imageInterval });
+
+    const response = await axios.post(`${API_URL}/admin/users/customizations`, 
+      { threshold, imageInterval }, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      return 'Changes saved successfully!';
+    } else {
+      return 'Failed to save changes. Please try again.';
+    }
+  } catch (error) {
+    if (error.response) {
+      // Log server response
+      console.error('API Response Error:', error.response.data);  
+    } else {
+      console.error('API Error:', error.message);  
+    }
+    return 'Error occurred. Please try again.';
+  }
+};
+const getCustomizations = async () => {
+  try {
+    const token = localStorage.getItem('token');
+
+    const response = await axios.get(`${API_URL}/admin/users/getCustomizations`, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    if (response.status === 200 || response.status === 201) {
+      return response.data.customization;
+    } else {
+      return 'Failed to get changes. Please try again.';
+    }
+  } catch (error) {
+    if (error.response) {
+      console.error('API Response Error:', error.response.data);  
+    } else {
+      console.error('API Error:', error.message);  
+    }
+    return 'Error occurred. Please try again.';
+  }
+};
+
+
+
+export { login, signup,forgotPassword,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass,customizations,getCustomizations};

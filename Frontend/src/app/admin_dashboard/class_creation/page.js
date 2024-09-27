@@ -5,6 +5,7 @@ import { createClass, getTeachers } from '../../../../../Backend/utils/api';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
 import SuccessMessage from '../components/SuccessMessage';
+
 const CreateClass = () => {
   const [isSuccess, setIsSuccess] = useState(false);
   const courseOptions = [
@@ -102,7 +103,8 @@ const CreateClass = () => {
       try {
         const data = await getTeachers();
         setTeacherOptions(data.data.teachers);
-
+        console.log(data);
+        
       } catch (error) {
         console.error('Error fetching teachers:', error);
       }
@@ -177,6 +179,8 @@ const CreateClass = () => {
   };
   const filterTeacherProgramWise = () => {
     const program = formData.className;
+    console.log("ClassName", program);
+    
     if (!program) return; 
 
     const filterTeacher = [];
@@ -185,10 +189,11 @@ const CreateClass = () => {
       for (const departmentKey in departmentClasses) {
         if (teacher.department === departmentKey) {
           const classes = departmentClasses[departmentKey];
+       
           for (const item of classes) {
-           
-            if (item.label === program) {
-              console.log(teacher)
+          
+            if (item.value === program) {
+              console.log("CS Teacher",teacher.department)
               filterTeacher.push(teacher);
             }
           }
