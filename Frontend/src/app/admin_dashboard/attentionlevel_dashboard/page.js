@@ -10,7 +10,7 @@ const AttentionLevelDashboard = () => {
   const [classes, setClasses] = useState(['Class A', 'Class B', 'Class C']); // Example classes
   const [selectedClass, setSelectedClass] = useState('');
   const [attentionData, setAttentionData] = useState(null);
-  const [loading, setLoading] = useState(false); // Set to false initially
+  const [loading, setLoading] = useState(false);
   const [timeRange, setTimeRange] = useState({ start: '', end: '' });
 
   // Fetch attention data when a class is selected
@@ -65,21 +65,23 @@ const AttentionLevelDashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
-        <div className="flex justify-center items-center mt-8">
-          <div className="w-full md:w-3/4 bg-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-semibold mb-6 text-center text-gray-700">Attention Level Dashboard</h1>
-            
+        <div className="flex justify-center items-center mt-20">
+          <div className="w-full md:w-3/4 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+            <h1 className="text-3xl font-semibold mb-6 text-center text-gray-700 dark:text-gray-200">
+              Attention Level Dashboard
+            </h1>
+
             {/* Class Selection */}
             <div className="mb-6">
-              <label className="block text-gray-700">Select Class</label>
+              <label className="block text-gray-700 dark:text-gray-300">Select Class</label>
               <select
                 value={selectedClass}
                 onChange={handleClassChange}
-                className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="">-- Select Class --</option>
                 {classes.map((className, index) => (
@@ -90,26 +92,26 @@ const AttentionLevelDashboard = () => {
 
             {/* Time Range Selection */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-2">Select Time Range</h3>
+              <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Select Time Range</h3>
               <div className="flex justify-between">
                 <div className="w-1/2 pr-2">
-                  <label className="block text-gray-700">Start Date</label>
+                  <label className="block text-gray-700 dark:text-gray-300">Start Date</label>
                   <input
                     type="date"
                     name="start"
                     value={timeRange.start}
                     onChange={handleTimeRangeChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                    className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
                 <div className="w-1/2 pl-2">
-                  <label className="block text-gray-700">End Date</label>
+                  <label className="block text-gray-700 dark:text-gray-300">End Date</label>
                   <input
                     type="date"
                     name="end"
                     value={timeRange.end}
                     onChange={handleTimeRangeChange}
-                    className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                    className="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2 w-full transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
               </div>
@@ -118,19 +120,24 @@ const AttentionLevelDashboard = () => {
             {/* Data Visualization */}
             {!loading && attentionData && (
               <div className="mt-6">
-                <h2 className="text-xl font-semibold mb-4">Attention Level Trend</h2>
-                <Line data={attentionData} />
+                <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-gray-200">Attention Level Trend</h2>
+                <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
+                  <Line data={attentionData} />
+                </div>
               </div>
             )}
 
             {/* Loading State */}
-            {loading && <p className="text-center text-gray-500">Loading data...</p>}
+            {loading && <p className="text-center text-gray-500 dark:text-gray-400">Loading data...</p>}
 
             {/* Export Report Button */}
             <div className="mt-6">
               <button
                 onClick={exportReport}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                className="w-1/3 bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white py-2 rounded-lg font-semibold 
+                             hover:bg-gradient-to-br hover:from-[#2B3B4D] hover:to-[#4F6770] 
+                             active:bg-gradient-to-br active:from-[#0E1B2A] active:to-[#2E4047] 
+                             transition duration-300"
               >
                 Export Report
               </button>

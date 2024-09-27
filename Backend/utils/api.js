@@ -27,6 +27,23 @@ const signup = async (userData) => {
     }
   }
 };
+const forgotPassword = async (email) => {
+  try {
+    const response = await axios.post(`${API_URL}/auth/forgotPassword`, email, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    } else {
+      throw new Error('Something went wrong!');
+    }
+  }
+};
 
 const createClass = async (classData,token) => {
   try {
@@ -114,4 +131,4 @@ const addStudentToClass = async (classId, studentId) => {
   }
 };
 
-export { login, signup,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass};
+export { login, signup,forgotPassword,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass};

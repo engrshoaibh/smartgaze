@@ -1,6 +1,6 @@
 import { AiFillCheckCircle } from 'react-icons/ai'; // Importing the success icon
 
-const SuccessMessage = ({ onDismiss }) => {
+const SuccessMessage = ({ onDismiss, title, message}) => {
   return (
     <div className="flex justify-center items-center fixed inset-0 bg-gray-800 bg-opacity-50">
       <div className="bg-white rounded-lg shadow-lg p-6 max-w-sm w-full">
@@ -8,10 +8,12 @@ const SuccessMessage = ({ onDismiss }) => {
           <AiFillCheckCircle className="h-12 w-12 text-green-500" />
         </div>
         <h2 className="text-2xl font-semibold text-gray-700 text-center mb-2">
-          Class Created Successfully!
+        Created Successfully!
+          {title}
         </h2>
         <p className="text-gray-600 text-center mb-4">
-          The class has been created and assigned to the teacher.
+  
+          {message}
         </p>
         <div className="flex justify-center">
           <button

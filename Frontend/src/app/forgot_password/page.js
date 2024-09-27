@@ -2,13 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-
+import {forgotPassword} from '../../../../Backend/utils/api'
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault(); // Prevents the form from submitting and refreshing the page
     if (email) {
+      
+      await forgotPassword({email});
       alert('The reset link has been sent to the registered email.');
       setEmail(''); // Clear the input field after submission
     } else {

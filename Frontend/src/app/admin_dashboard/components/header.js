@@ -2,21 +2,16 @@ import { useState, useEffect, useRef } from 'react';
 import { FaBell, FaSearch, FaQuestion } from 'react-icons/fa';
 import NotificationWindow from './notification_window';
 import ProfileWindow from './profile_window';
+import ThemeBtn from '@/app/components/ThemeBtn';
 
 export default function Header() {
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [hoveredIcon, setHoveredIcon] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // References for notification and profile windows
   const notificationRef = useRef(null);
   const profileRef = useRef(null);
-
-  const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
-    document.documentElement.classList.toggle('dark');
-  };
 
   const handleNotificationClick = () => {
     setIsNotificationOpen(!isNotificationOpen);
@@ -59,28 +54,29 @@ export default function Header() {
   ];
 
   return (
-    <header className="relative flex justify-between items-center mb-1 px-1">
+    <header className="relative flex justify-between items-center px-4 bg-white dark:bg-gray-900 h-16 shadow-lg dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)] rounded-lg">
       <div className="flex-grow"></div>
 
       <div className="relative flex-grow max-w-lg">
         <input
           type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-100 text-gray-700 border border-gray-300 rounded-full shadow-md focus:outline-none hover:bg-gray-200"
+          className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-full shadow-md dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)] focus:outline-none hover:bg-gray-200 dark:hover:bg-gray-600"
           placeholder="Search..."
         />
-        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300" />
       </div>
 
       <div className="flex-grow flex justify-end items-center space-x-6">
+        <ThemeBtn />
         {/* Help Icon */}
         <div className="relative">
           <FaQuestion
-            className="text-xl cursor-pointer"
+            className="text-xl cursor-pointer text-gray-600 dark:text-gray-300"
             onMouseEnter={() => !isNotificationOpen && !isProfileOpen && setHoveredIcon('Help')}
             onMouseLeave={() => setHoveredIcon(null)}
           />
           {hoveredIcon === 'Help' && (
-            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 whitespace-nowrap">
+            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 shadow-lg whitespace-nowrap">
               Help
             </span>
           )}
@@ -89,16 +85,16 @@ export default function Header() {
         {/* Notifications Icon */}
         <div className="relative" ref={notificationRef}>
           <FaBell
-            className="text-xl cursor-pointer"
+            className="text-xl cursor-pointer text-gray-600 dark:text-gray-300"
             onClick={handleNotificationClick}
             onMouseEnter={() => !isNotificationOpen && !isProfileOpen && setHoveredIcon('Notifications')}
             onMouseLeave={() => setHoveredIcon(null)}
           />
-          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center">
+          <span className="absolute -top-1 -right-2 bg-red-500 text-white rounded-full text-xs w-4 h-4 flex items-center justify-center shadow-md dark:shadow-[0px_4px_15px_rgba(255,255,255,0.2)]">
             3
           </span>
           {hoveredIcon === 'Notifications' && (
-            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 whitespace-nowrap">
+            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 shadow-lg whitespace-nowrap">
               Notifications
             </span>
           )}
@@ -120,17 +116,15 @@ export default function Header() {
           <img
             src="/images/admin.png"
             alt="Admin Profile"
-            className="w-8 h-8 rounded-full"
+            className="w-8 h-8 rounded-full shadow-md dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)]"
           />
           {hoveredIcon === 'User Profile' && (
-            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 whitespace-nowrap">
+            <span className="absolute left-1/2 transform -translate-x-1/2 mt-2 bg-black text-white text-xs rounded p-1 shadow-lg whitespace-nowrap">
               Profile
             </span>
           )}
           <ProfileWindow
             isOpen={isProfileOpen}
-            isDarkMode={isDarkMode}
-            toggleTheme={toggleTheme}
           />
         </div>
       </div>

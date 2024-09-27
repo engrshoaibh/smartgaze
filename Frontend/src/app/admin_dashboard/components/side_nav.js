@@ -13,12 +13,11 @@ import {
   FaChevronLeft,
   FaChalkboardTeacher
 } from 'react-icons/fa';
-import { ThemeContext } from '../../../context/ThemeContext'; // Import the ThemeContext
+
 
 export default function Sidebar() {
   const [isExpanded, setIsExpanded] = useState(true);
   const pathname = usePathname();
-  const { theme } = useContext(ThemeContext); // Get the current theme
 
   const toggleSidebar = () => {
     setIsExpanded(!isExpanded);
@@ -30,7 +29,7 @@ export default function Sidebar() {
     <div
       className={`group flex flex-col ${
         isExpanded ? 'w-64' : 'w-20'
-      } bg-white dark:bg-gray-900 text-black dark:text-white transition-all duration-300 shadow-lg relative`}
+      } bg-white dark:bg-gray-900 text-black dark:text-white shadow-lg relative dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)]`}
     >
       <div className="flex items-center p-4 relative">
         <div className="flex items-center">

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/side_nav';
 import Header from '../components/header';
 import { Bar } from 'react-chartjs-2';
@@ -9,7 +9,7 @@ import jsPDF from 'jspdf';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { CSVLink } from 'react-csv';
-import { ThemeContext } from '../../../context/ThemeContext';   // Import ThemeContext for dark mode
+
 
 const attendanceRecords = [
   { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '09:00 AM', present: 28, absent: 2 },
@@ -37,7 +37,6 @@ const AttendanceDashboard = () => {
   const [selectedGraphClass, setSelectedGraphClass] = useState('');
   const [selectedGraphTeacher, setSelectedGraphTeacher] = useState('');
 
-  const { theme } = useContext(ThemeContext); // Get the current theme
 
   useEffect(() => {
     const classList = [...new Set(attendanceRecords.map((record) => record.class))];
@@ -164,16 +163,16 @@ const AttendanceDashboard = () => {
   const tableHeaders = ['Time', 'Class', 'Teacher', 'Present', 'Absent'];
 
   return (
-    <div className={`flex min-h-screen ${theme === 'dark' ? 'bg-gray-900 text-white' : 'bg-gray-50 text-black'}`}>
+    <div className="flex min-h-screen dark:bg-gray-900 bg-gray-50">
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
 
-        <div className={`flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20 ${theme === 'dark' ? 'bg-gray-800' : 'bg-white'}`} style={{ height: '450px' }}>
+        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20 " style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className={`flex-1 p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
+          <div className="flex-1 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
             {loading ? (
-              <p>Loading data...</p>
+              <p className="text-black dark:text-white">Loading data...</p>
             ) : (
               <div>
                 {/* Graph Filters */}
@@ -181,7 +180,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphClass}
                     onChange={onGraphClassChange}
-                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1`}
+                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1"
                   >
                     <option value="">All Classes</option>
                     {classes.map((className, idx) => (
@@ -194,7 +193,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphTeacher}
                     onChange={onGraphTeacherChange}
-                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 ml-2`}
+                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 ml-2"
                   >
                     <option value="">All Teachers</option>
                     {teachers.map((teacher, idx) => (
@@ -211,17 +210,18 @@ const AttendanceDashboard = () => {
           </div>
 
           {/* Filters Section */}
-          <div className={`w-full lg:w-1/3 p-4 rounded-lg shadow-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
+          <div className="w-full lg:w-1/3 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
             <div className="flex space-x-4 mb-4">
-              {/* Existing Filters */}
               <div className="flex-1">
-                <label className="block">Filter by Class</label>
                 <select
                   value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full`}
+                  onChange={(e) => {
+                    setSelectedClass(e.target.value);
+                    handleFilterChange();  // Call handleFilterChange after setting selected class
+                  }}
+                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">All</option>
+                  <option value="">All Classes</option>
                   {classes.map((className, idx) => (
                     <option key={idx} value={className}>
                       {className}
@@ -231,13 +231,15 @@ const AttendanceDashboard = () => {
               </div>
 
               <div className="flex-1">
-                <label className="block">Filter by Teacher</label>
                 <select
                   value={selectedTeacher}
-                  onChange={(e) => setSelectedTeacher(e.target.value)}
-                  className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full`}
+                  onChange={(e) => {
+                    setSelectedTeacher(e.target.value);
+                    handleFilterChange();  // Call handleFilterChange after setting selected teacher
+                  }}
+                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">All</option>
+                  <option value="">All Teachers</option>
                   {teachers.map((teacher, idx) => (
                     <option key={idx} value={teacher}>
                       {teacher}
@@ -246,48 +248,52 @@ const AttendanceDashboard = () => {
                 </select>
               </div>
 
-              <div className="flex-1">
-                <label className="block">Date Range</label>
-                <div className="flex space-x-2">
-                  <DatePicker
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                    selectsStart
-                    startDate={startDate}
-                    endDate={endDate}
-                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full text-sm`}
-                    placeholderText="Start Date"
-                  />
-                  <DatePicker
-                    selected={endDate}
-                    onChange={(date) => setEndDate(date)}
-                    selectsEnd
-                    startDate={startDate}
-                    endDate={endDate}
-                    className={`border ${theme === 'dark' ? 'border-gray-700 bg-gray-700 text-white' : 'border-gray-300'} rounded-md px-2 py-1 w-full text-sm`}
-                    placeholderText="End Date"
-                  />
-                </div>
+            </div>
+
+            {/* New Row for Date Range */}
+            <div className="mb-4">
+              <label className="block text-black dark:text-white">Date Range</label>
+              <div className="flex space-x-2">
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => {
+                    setStartDate(date);
+                    handleFilterChange();  // Call handleFilterChange after setting start date
+                  }}
+                  selectsStart
+                  startDate={startDate}
+                  endDate={endDate}
+                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  placeholderText="Start Date"
+                />
+
+                <DatePicker
+                  selected={endDate}
+                  onChange={(date) => {
+                    setEndDate(date);
+                    handleFilterChange();  // Call handleFilterChange after setting end date
+                  }}
+                  selectsEnd
+                  startDate={startDate}
+                  endDate={endDate}
+                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  placeholderText="End Date"
+                />
               </div>
             </div>
 
-            <button
-              onClick={handleFilterChange}
-              className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
-            >
-              Apply Filters
-            </button>
+        
 
             {/* Reports List */}
             {filteredRecords.length > 0 && (
               <div className="mt-4">
-                <h3 className="font-semibold">Attendance Reports:</h3>
+                <h3 className="font-semibold text-black dark:text-white">Attendance Reports:</h3>
                 <ul className="list-disc list-inside">
                   {filteredRecords.map((record, idx) => (
                     <li
                       key={idx}
                       onClick={() => handleReportClick(record.class, record.date)}
-                      className="cursor-pointer hover:text-blue-600"
+                      className="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
                     >
                       {record.class} (Attendance {record.date})
                     </li>
@@ -301,17 +307,17 @@ const AttendanceDashboard = () => {
         {/* Modal for Selected Report */}
         {modalIsOpen && selectedReport && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
-            <div className={`p-6 w-full max-w-md mx-auto rounded-lg ${theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
+            <div className="p-6 w-full max-w-md mx-auto rounded-lg dark:bg-gray-800 bg-white text-black dark:text-white">
               <h2 className="text-2xl font-semibold mb-4">
                 {selectedReport[0].class} Attendance Report
               </h2>
               <p>Date: {selectedReport[0].date}</p>
 
-              <table className={`min-w-full border-collapse border ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+              <table className="min-w-full border-collapse border dark:border-gray-700 border-gray-200">
                 <thead>
                   <tr>
                     {tableHeaders.map((header, idx) => (
-                      <th key={idx} className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>
+                      <th key={idx} className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">
                         {header}
                       </th>
                     ))}
@@ -320,11 +326,11 @@ const AttendanceDashboard = () => {
                 <tbody>
                   {selectedReport.map((record, index) => (
                     <tr key={index}>
-                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.time}</td>
-                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.class}</td>
-                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.teacher}</td>
-                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.present}</td>
-                      <td className={`p-2 ${theme === 'dark' ? 'border-gray-700' : 'border-gray-200'}`}>{record.absent}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.time}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.class}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.teacher}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.present}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.absent}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -333,7 +339,7 @@ const AttendanceDashboard = () => {
               <div className="flex space-x-4 mt-4">
                 <button
                   onClick={() => exportToPDF(selectedReport)}
-                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
                 >
                   Export as PDF
                 </button>
@@ -348,13 +354,13 @@ const AttendanceDashboard = () => {
                     { label: 'Absent', key: 'absent' },
                   ]}
                   filename={`attendance_report_${selectedReport[0].class}_${selectedReport[0].date}.csv`}
-                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
                 >
                   Export as CSV
                 </CSVLink>
                 <button
                   onClick={() => setModalIsOpen(false)}
-                  className={`px-4 py-2 rounded ${theme === 'dark' ? 'bg-gray-700 text-white' : 'bg-gray-300 text-black'}`}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
                 >
                   Close
                 </button>
@@ -365,6 +371,9 @@ const AttendanceDashboard = () => {
       </main>
     </div>
   );
+
+
+
 };
 
 export default AttendanceDashboard;

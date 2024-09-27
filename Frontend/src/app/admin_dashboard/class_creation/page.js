@@ -218,7 +218,7 @@ const CreateClass = () => {
       description: formData.description,
       teacher: formData.teacher,
     };
-
+    console.log(submissionData)
     try {
       const token = localStorage.getItem('token');
       const response = await createClass(submissionData, token);
@@ -239,43 +239,46 @@ const CreateClass = () => {
   };
 
   if (isSuccess) {
-    return <SuccessMessage onDismiss={() => setIsSuccess(false)} />;
+    return <SuccessMessage 
+    onDismiss={() => setIsSuccess(false)} 
+    title={"Class Created Successfully!"} 
+    message={"The class has been created and assigned to the teacher."}
+    />;
   }
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-gray-50 dark:bg-gray-900">
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
-        <div className="flex justify-center items-center mt-8">
-          <div className="w-full md:w-1/2 bg-white p-8 rounded-lg shadow-lg">
-            <h1 className="text-3xl font-semibold mb-6 text-center text-gray-700">Create Class</h1>
+        <div className="flex justify-center items-center mt-12">
+          <div className="w-full md:w-1/2 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+            <h1 className="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Create Class</h1>
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Class Name</label>
-
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Class Name</label>
+  
                   <select
                     name="className"
                     value={formData.className}
                     onChange={handleChange}
-                    className={`w-3/4 px-4 py-2 border 'border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent`}
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     {classes.map((cls) => (
-                      <option key={cls.value} value={cls.label}>
+                      <option key={cls.value} value={cls.value}>
                         {cls.label}
                       </option>
                     ))}
                   </select>
-
                 </div>
-
+  
                 <div>
-                  <label className="block text-sm font-medium text-gray-600 mb-2">Section Name</label>
+                  <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Section Name</label>
                   <select
                     name="sectionName"
                     value={formData.sectionName}
                     onChange={handleChange}
-                    className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="">Select Section</option>
                     {sectionOptions.map((section) => (
@@ -286,17 +289,17 @@ const CreateClass = () => {
                   </select>
                 </div>
               </div>
-
+  
               {/* Dynamic Course Fields */}
               {courseList.map((course, index) => (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6" key={index}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Course Code</label>
+                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Course Code</label>
                     <select
                       name="courseCode"
                       value={course.courseCode}
                       onChange={(e) => handleCourseCodeChange(e, index)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">Select Course Code</option>
                       {getAvailableCourseOptions(index).map((courseOption) => (
@@ -306,14 +309,14 @@ const CreateClass = () => {
                       ))}
                     </select>
                   </div>
-
+  
                   <div>
-                    <label className="block text-sm font-medium text-gray-600 mb-2">Course Name</label>
+                    <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Course Name</label>
                     <select
                       name="courseName"
                       value={course.courseName}
                       onChange={(e) => handleCourseNameChange(e, index)}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="">Select Course Name</option>
                       {getAvailableCourseOptions(index).map((courseOption) => (
@@ -323,7 +326,7 @@ const CreateClass = () => {
                       ))}
                     </select>
                   </div>
-
+  
                   {/* Remove Button */}
                   <div className="flex items-center justify-end">
                     {courseList.length > 1 && (
@@ -338,7 +341,7 @@ const CreateClass = () => {
                   </div>
                 </div>
               ))}
-
+  
               {/* Add Course Button */}
               {courseList.length < 5 && (
                 <div className="flex justify-center mt-2">
@@ -351,26 +354,26 @@ const CreateClass = () => {
                   </button>
                 </div>
               )}
-
+  
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Description</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Description</label>
                 <textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
                   placeholder="Enter Class Description"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   rows="3"
                 ></textarea>
               </div>
-
+  
               <div>
-                <label className="block text-sm font-medium text-gray-600 mb-2">Assign Teacher</label>
+                <label className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">Assign Teacher</label>
                 <select
                   name="teacher"
                   value={formData.teacher}
                   onChange={handleChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg text-gray-800 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-800 dark:text-gray-200 text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 >
                   <option value="">Select Teacher</option>
                   {teacherFilterData.map((teacher) => (
@@ -380,7 +383,7 @@ const CreateClass = () => {
                   ))}
                 </select>
               </div>
-
+  
               <div className="flex justify-center mt-6">
                 <button
                   type="submit"
@@ -398,6 +401,7 @@ const CreateClass = () => {
       </main>
     </div>
   );
+  
 };
 
 export default CreateClass;

@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'selector',
+  darkMode: 'class',
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx}",
     "./src/components/**/*.{js,ts,jsx,tsx}",
@@ -11,7 +11,8 @@ module.exports = {
         'custom-gradient': 'linear-gradient(to bottom right, #1E2B3A, #3E5259)',
       },
       colors: {
-        'darkblue': '#101E36',
+        'dark': '#232A3C',
+        'medium': '#293245'
       },
     },
     fontFamily: {
