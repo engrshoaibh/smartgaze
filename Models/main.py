@@ -93,7 +93,7 @@ def detect_emotion(face_image):
     max_index = np.argmax(emotion_predictions[0])
     return emotion_labels[max_index]
 
-def mark_attendance_and_emotion(student_id, name, emotio):
+def mark_attendance_and_emotion(student_id, name, emotion):
     current_time = datetime.now()
     date_today = current_time.strftime("%Y-%m-%d")
     time_now = current_time.strftime("%H:%M:%S")
