@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { createClass, getTeachers } from '../../../../../Backend/utils/api';
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
+import Header from '../../components/header';
 import SuccessMessage from '../components/SuccessMessage';
 
 const CreateClass = () => {

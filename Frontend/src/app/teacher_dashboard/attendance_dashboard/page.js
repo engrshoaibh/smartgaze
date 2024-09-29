@@ -2,104 +2,57 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
-import { Line } from 'react-chartjs-2';
+import Header from '../../components/header';
+import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import jsPDF from 'jspdf';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { CSVLink } from 'react-csv';
 
-// Mock authentication context
-const mockUser = {
-  id: 'teacher001', // Unique identifier for the user
-  role: 'teacher', // Can be 'student' or 'teacher'/'admin'
-  name: 'Mr. Smith',
-};
-
-// Expanded attendance records with 'studentId' and 'studentName' fields
+//make some chnages
 const attendanceRecords = [
-  // September 2023 - Class A and Class B taught by Mr. Smith
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', present: 0, absent: 1, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', present: 1, absent: 0, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', present: 1, absent: 0, studentId: 'student004', studentName: 'Bob Brown' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-03', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-03', present: 0, absent: 1, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-04', present: 1, absent: 0, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-04', present: 1, absent: 0, studentId: 'student004', studentName: 'Bob Brown' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-05', present: 0, absent: 1, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-05', present: 1, absent: 0, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-06', present: 1, absent: 0, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-06', present: 0, absent: 1, studentId: 'student004', studentName: 'Bob Brown' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-07', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-07', present: 1, absent: 0, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-08', present: 0, absent: 1, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-08', present: 1, absent: 0, studentId: 'student004', studentName: 'Bob Brown' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-09', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-09', present: 0, absent: 1, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-10', present: 1, absent: 0, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-10', present: 1, absent: 0, studentId: 'student004', studentName: 'Bob Brown' },
-  
-  // Continue for the rest of September
-  // September 11 to September 30
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-11', present: 0, absent: 1, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-11', present: 1, absent: 0, studentId: 'student002', studentName: 'Jane Smith' },
-  // ... (Include similar entries for each date and student)
-
-  // October 2023 - Repeat similar pattern for October dates
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-10-01', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-10-01', present: 0, absent: 1, studentId: 'student002', studentName: 'Jane Smith' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-10-02', present: 1, absent: 0, studentId: 'student003', studentName: 'Alice Johnson' },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-10-02', present: 1, absent: 0, studentId: 'student004', studentName: 'Bob Brown' },
-  // Continue for the rest of October
-  // October 3 to October 31
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-10-03', present: 1, absent: 0, studentId: 'student001', studentName: 'John Doe' },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-10-03', present: 1, absent: 0, studentId: 'student002', studentName: 'Jane Smith' },
-  // ... (Include similar entries for each date and student)
-
-  // Total entries should sum up to 54
+  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '09:00 AM', present: 28, absent: 2 },
+  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '01:00 PM', present: 26, absent: 4 },
+  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', time: '09:00 AM', present: 27, absent: 3 },
+  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '09:00 AM', present: 29, absent: 1 },
+  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '01:00 PM', present: 30, absent: 0 },
+  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '09:00 AM', present: 26, absent: 4 },
+  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '01:00 PM', present: 24, absent: 6 },
 ];
-
-
-// Extract classes and students for the teacher
-const teacherClasses = [...new Set(attendanceRecords.filter(record => record.teacher === mockUser.name).map(record => record.class))];
-const teacherStudents = [...new Set(attendanceRecords.filter(record => record.teacher === mockUser.name).map(record => ({ id: record.studentId, name: record.studentName })))];
 
 const AttendanceDashboard = () => {
   const [attendanceData, setAttendanceData] = useState({ labels: [], datasets: [] });
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState([]);
-  const [students, setStudents] = useState([]);
+  const [teachers, setTeachers] = useState([]);
   const [selectedClass, setSelectedClass] = useState('');
-  const [selectedStudent, setSelectedStudent] = useState('');
+  const [selectedTeacher, setSelectedTeacher] = useState('');
   const [startDate, setStartDate] = useState(null);
   const [endDate, setEndDate] = useState(null);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [filteredRecords, setFilteredRecords] = useState([]);
-  const [userRole, setUserRole] = useState(''); // 'student' or 'teacher/admin'
+  const [graphFilteredRecords, setGraphFilteredRecords] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [selectedGraphClass, setSelectedGraphClass] = useState('');
+  const [selectedGraphTeacher, setSelectedGraphTeacher] = useState('');
+
 
   useEffect(() => {
-    // Set the user role based on the logged-in user
-    setUserRole(mockUser.role);
-
-    // Initialize classes and students lists based on user role
-    if (mockUser.role === 'teacher') {
-      setClasses(teacherClasses);
-      setStudents(teacherStudents);
-      fetchAttendanceData(attendanceRecords.filter(record => record.teacher === mockUser.name));
-    } else {
-      // For student/admin, adjust accordingly
-      // ...
-    }
+    const classList = [...new Set(attendanceRecords.map((record) => record.class))];
+    setClasses(classList);
+    const teacherList = [...new Set(attendanceRecords.map((record) => record.teacher))];
+    setTeachers(teacherList);
+    fetchAttendanceData();
   }, []);
 
-  const fetchAttendanceData = async (records) => {
+  const fetchAttendanceData = async () => {
     setLoading(true);
     try {
-      // Simulate API call delay
       await new Promise((resolve) => setTimeout(resolve, 500));
-      prepareChartData(records);
+      setFilteredRecords(attendanceRecords); // Initial full records for both
+      setGraphFilteredRecords(attendanceRecords);
+      prepareChartData(attendanceRecords);
       setLoading(false);
     } catch (error) {
       console.error('Error fetching data:', error);
@@ -108,7 +61,6 @@ const AttendanceDashboard = () => {
   };
 
   const prepareChartData = (records) => {
-    // Aggregate data for the chart
     const dateLabels = [...new Set(records.map((record) => record.date))].sort();
     const presentData = dateLabels.map((date) => {
       return records
@@ -129,16 +81,14 @@ const AttendanceDashboard = () => {
           data: presentData,
           backgroundColor: 'rgba(75,192,192,0.4)',
           borderColor: 'rgba(75,192,192,1)',
-          fill: false,
-          tension: 0.1,
+          borderWidth: 1,
         },
         {
           label: 'Absent Students',
           data: absentData,
           backgroundColor: 'rgba(255,99,132,0.4)',
           borderColor: 'rgba(255,99,132,1)',
-          fill: false,
-          tension: 0.1,
+          borderWidth: 1,
         },
       ],
     });
@@ -146,13 +96,13 @@ const AttendanceDashboard = () => {
 
   const handleFilterChange = () => {
     setLoading(true);
-    let records = attendanceRecords.filter(record => record.teacher === mockUser.name);
+    let records = [...attendanceRecords];
 
     if (selectedClass) {
       records = records.filter((record) => record.class === selectedClass);
     }
-    if (selectedStudent) {
-      records = records.filter((record) => record.studentId === selectedStudent);
+    if (selectedTeacher) {
+      records = records.filter((record) => record.teacher === selectedTeacher);
     }
     if (startDate) {
       records = records.filter((record) => new Date(record.date) >= startDate);
@@ -162,54 +112,116 @@ const AttendanceDashboard = () => {
     }
 
     setFilteredRecords(records);
-    prepareChartData(records);
     setLoading(false);
-    setModalIsOpen(true); // Open the modal to show the table
   };
 
-  const exportToPDF = () => {
+  const handleGraphFilterChange = () => {
+    let records = [...attendanceRecords];
+
+    if (selectedGraphClass) {
+      records = records.filter((record) => record.class === selectedGraphClass);
+    }
+    if (selectedGraphTeacher) {
+      records = records.filter((record) => record.teacher === selectedGraphTeacher);
+    }
+
+    setGraphFilteredRecords(records);
+    prepareChartData(records); // Update chart data based on graph filtered records
+  };
+
+  const onGraphClassChange = (e) => {
+    setSelectedGraphClass(e.target.value);
+    handleGraphFilterChange();
+  };
+
+  const onGraphTeacherChange = (e) => {
+    setSelectedGraphTeacher(e.target.value);
+    handleGraphFilterChange();
+  };
+
+  const handleReportClick = (className, date) => {
+    const recordsForReport = filteredRecords.filter(
+      (record) => record.class === className && record.date === date
+    );
+    setSelectedReport(recordsForReport);
+    setModalIsOpen(true);
+  };
+
+  const exportToPDF = (records) => {
     const doc = new jsPDF();
-    doc.text('Attendance Report', 14, 15);
+    doc.text(`Attendance Report for ${records[0].class} on ${records[0].date}`, 14, 15);
     doc.setFontSize(10);
 
-    let yPosition = 25;
-    filteredRecords.forEach((record, index) => {
-      const line = `Date: ${record.date}, Class: ${record.class}, Student: ${record.studentName}, Present: ${record.present}, Absent: ${record.absent}`;
-      doc.text(line, 14, yPosition + index * 7);
+    records.forEach((record, index) => {
+      const line = `Time: ${record.time}, Teacher: ${record.teacher}, Present: ${record.present}, Absent: ${record.absent}`;
+      doc.text(line, 14, 25 + index * 10);
     });
 
-    doc.save('attendance_report.pdf');
+    doc.save(`attendance_report_${records[0].class}_${records[0].date}.pdf`);
   };
 
-  const tableHeaders = ['Date', 'Class', 'Student', 'Present', 'Absent'];
+  const tableHeaders = ['Time', 'Class', 'Teacher', 'Present', 'Absent'];
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen dark:bg-gray-900 bg-gray-50">
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
 
-        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4">
+        <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20 " style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className="flex-1 bg-white p-4 rounded-lg shadow-lg">
+          <div className="flex-1 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
             {loading ? (
-              <p>Loading data...</p>
+              <p className="text-black dark:text-white">Loading data...</p>
             ) : (
-              <Line data={attendanceData} options={{ maintainAspectRatio: true }} />
+              <div>
+                {/* Graph Filters */}
+                <div className="flex justify-end mb-4">
+                  <select
+                    value={selectedGraphClass}
+                    onChange={onGraphClassChange}
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1"
+                  >
+                    <option value="">All Classes</option>
+                    {classes.map((className, idx) => (
+                      <option key={idx} value={className}>
+                        {className}
+                      </option>
+                    ))}
+                  </select>
+
+                  <select
+                    value={selectedGraphTeacher}
+                    onChange={onGraphTeacherChange}
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 ml-2"
+                  >
+                    <option value="">All Teachers</option>
+                    {teachers.map((teacher, idx) => (
+                      <option key={idx} value={teacher}>
+                        {teacher}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <Bar data={attendanceData} options={{ maintainAspectRatio: true }} />
+              </div>
             )}
           </div>
 
           {/* Filters Section */}
-          <div className="w-full lg:w-1/3 bg-white p-4 rounded-lg shadow-lg">
-            <div className="flex flex-col space-y-4 mb-4">
-              <div>
-                <label className="block text-gray-700">Filter by Class</label>
+          <div className="w-full lg:w-1/3 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
+            <div className="flex space-x-4 mb-4">
+              <div className="flex-1">
                 <select
                   value={selectedClass}
-                  onChange={(e) => setSelectedClass(e.target.value)}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                  onChange={(e) => {
+                    setSelectedClass(e.target.value);
+                    handleFilterChange();  // Call handleFilterChange after setting selected class
+                  }}
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">-- All Classes --</option>
+                  <option value="">All Classes</option>
                   {classes.map((className, idx) => (
                     <option key={idx} value={className}>
                       {className}
@@ -218,117 +230,150 @@ const AttendanceDashboard = () => {
                 </select>
               </div>
 
-              <div>
-                <label className="block text-gray-700">Filter by Student</label>
+              <div className="flex-1">
                 <select
-                  value={selectedStudent}
-                  onChange={(e) => setSelectedStudent(e.target.value)}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full"
+                  value={selectedTeacher}
+                  onChange={(e) => {
+                    setSelectedTeacher(e.target.value);
+                    handleFilterChange();  // Call handleFilterChange after setting selected teacher
+                  }}
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
-                  <option value="">-- All Students --</option>
-                  {students.map((student, idx) => (
-                    <option key={idx} value={student.id}>
-                      {student.name}
+                  <option value="">All Teachers</option>
+                  {teachers.map((teacher, idx) => (
+                    <option key={idx} value={teacher}>
+                      {teacher}
                     </option>
                   ))}
                 </select>
               </div>
 
+            </div>
+
+            {/* New Row for Date Range */}
+            <div className="mb-4">
+              <label className="block text-black dark:text-white">Date Range</label>
               <div className="flex space-x-2">
                 <DatePicker
                   selected={startDate}
-                  onChange={(date) => setStartDate(date)}
+                  onChange={(date) => {
+                    setStartDate(date);
+                    handleFilterChange();  // Call handleFilterChange after setting start date
+                  }}
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="Start Date"
                 />
+
                 <DatePicker
                   selected={endDate}
-                  onChange={(date) => setEndDate(date)}
+                  onChange={(date) => {
+                    setEndDate(date);
+                    handleFilterChange();  // Call handleFilterChange after setting end date
+                  }}
                   selectsEnd
                   startDate={startDate}
                   endDate={endDate}
-                  className="border border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="End Date"
                 />
               </div>
-
-              <button
-                onClick={handleFilterChange}
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-              >
-                Apply Filters
-              </button>
             </div>
+
+        
+
+            {/* Reports List */}
+            {filteredRecords.length > 0 && (
+              <div className="mt-4">
+                <h3 className="font-semibold text-black dark:text-white">Attendance Reports:</h3>
+                <ul className="list-disc list-inside">
+                  {filteredRecords.map((record, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => handleReportClick(record.class, record.date)}
+                      className="cursor-pointer hover:text-blue-600 dark:hover:text-blue-400"
+                    >
+                      {record.class} (Attendance {record.date})
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Modal for Report Table */}
-        {modalIsOpen && (
+        {/* Modal for Selected Report */}
+        {modalIsOpen && selectedReport && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-auto bg-black bg-opacity-50">
-            <div className="bg-white rounded-lg p-6 w-full max-w-3xl mx-auto">
-              <h2 className="text-2xl font-semibold mb-4">Attendance Report</h2>
-              {filteredRecords.length > 0 ? (
-                <div>
-                  <table className="min-w-full bg-white mb-4">
-                    <thead>
-                      <tr>
-                        {tableHeaders.map((header, idx) => (
-                          <th key={idx} className="py-2 px-4 border">
-                            {header}
-                          </th>
-                        ))}
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredRecords.map((record, idx) => (
-                        <tr key={idx}>
-                          <td className="py-2 px-4 border">{record.date}</td>
-                          <td className="py-2 px-4 border">{record.class}</td>
-                          <td className="py-2 px-4 border">{record.studentName}</td>
-                          <td className="py-2 px-4 border">{record.present}</td>
-                          <td className="py-2 px-4 border">{record.absent}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="flex flex-wrap space-x-4">
-                    <button
-                      onClick={exportToPDF}
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Export as PDF
-                    </button>
-                    <CSVLink
-                      data={filteredRecords}
-                      headers={tableHeaders.map((header) => ({
-                        label: header,
-                        key: header.toLowerCase(),
-                      }))}
-                      filename="attendance_report.csv"
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Export as CSV
-                    </CSVLink>
-                    <button
-                      onClick={() => setModalIsOpen(false)}
-                      className="bg-gray-300 text-black px-4 py-2 rounded mb-2"
-                    >
-                      Close
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <p>No records found.</p>
-              )}
+            <div className="p-6 w-full max-w-md mx-auto rounded-lg dark:bg-gray-800 bg-white text-black dark:text-white">
+              <h2 className="text-2xl font-semibold mb-4">
+                {selectedReport[0].class} Attendance Report
+              </h2>
+              <p>Date: {selectedReport[0].date}</p>
+
+              <table className="min-w-full border-collapse border dark:border-gray-700 border-gray-200">
+                <thead>
+                  <tr>
+                    {tableHeaders.map((header, idx) => (
+                      <th key={idx} className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">
+                        {header}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {selectedReport.map((record, index) => (
+                    <tr key={index}>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.time}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.class}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.teacher}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.present}</td>
+                      <td className="p-2 border dark:border-gray-700 border-gray-200 text-black dark:text-white">{record.absent}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="flex space-x-4 mt-4">
+                <button
+                  onClick={() => exportToPDF(selectedReport)}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
+                >
+                  Export as PDF
+                </button>
+                <CSVLink
+                  data={selectedReport}
+                  headers={[
+                    { label: 'Time', key: 'time' },
+                    { label: 'Date', key: 'date' },
+                    { label: 'Class', key: 'class' },
+                    { label: 'Teacher', key: 'teacher' },
+                    { label: 'Present', key: 'present' },
+                    { label: 'Absent', key: 'absent' },
+                  ]}
+                  filename={`attendance_report_${selectedReport[0].class}_${selectedReport[0].date}.csv`}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
+                >
+                  Export as CSV
+                </CSVLink>
+                <button
+                  onClick={() => setModalIsOpen(false)}
+                  className="px-4 py-2 rounded bg-gray-300 text-black dark:bg-gray-700 dark:text-white"
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         )}
       </main>
     </div>
   );
+
+
+
 };
 
 export default AttendanceDashboard;

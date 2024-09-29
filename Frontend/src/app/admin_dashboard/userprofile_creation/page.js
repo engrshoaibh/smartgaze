@@ -1,7 +1,7 @@
 "use client"; // Properly mark this component as a Client Component
 
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
+import Header from '../../components/header';
 import { useState, useEffect } from 'react';
 import { signup } from '../../../../../Backend/utils/api';
 import SuccessMessage from '../components/SuccessMessage';

@@ -32,7 +32,7 @@ export default function LoginPage() {
       if (response.token) {
         // Store the token in localStorage
         localStorage.setItem('token', response.token);
-
+        localStorage.setItem('user', JSON.stringify(response.user));
         // Check the user's role and navigate accordingly
         switch (response.user.role) {
           case 'admin':

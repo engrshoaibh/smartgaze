@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
+import Header from '../../components/header';
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import jsPDF from 'jspdf';

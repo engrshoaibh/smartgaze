@@ -27,7 +27,7 @@ export default function Sidebar() {
     <div
       className={`group flex flex-col ${
         isExpanded ? 'w-64' : 'w-20'
-      } bg-white text-black transition-all duration-300 shadow-lg relative`}
+      } bg-white dark:bg-gray-900 text-black dark:text-gray-200 shadow-lg relative`}
     >
       <div className="flex items-center p-4 relative">
         <div className="flex items-center">
@@ -37,7 +37,7 @@ export default function Sidebar() {
             className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700"
           />
           {isExpanded && (
-            <span className="ml-3 text-lg font-normal text-gray-700">Smart Gaze</span>
+            <span className="ml-3 text-lg font-normal text-gray-700 dark:text-gray-300">Smart Gaze</span>
           )}
         </div>
         <button
@@ -47,26 +47,23 @@ export default function Sidebar() {
           {isExpanded ? <FaChevronLeft className="text-sm" /> : <FaChevronRight className="text-sm" />}
         </button>
       </div>
-
+  
       <nav className="flex-1 mt-4">
         <ul className="space-y-2 p-2">
           {[
             { name: 'Main Dashboard', icon: FaChartLine, href: '/teacher_dashboard' },
             { name: 'Attendance Dashboard', icon: FaUserCheck, href: '/teacher_dashboard/attendance_dashboard' },
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/teacher_dashboard/emotionalstate_dashboard' },
-            { name: 'Attention Level Dashboard',  icon: FaBrain, href: '/teacher_dashboard/attentionlevel_dashboard' },
-            { name: 'Class Management', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' },
-            { name: 'Customizations', icon: FaCogs, href: '/teacher_dashboard/customizations' },
-            
-      
+            { name: 'Attention Level Dashboard', icon: FaBrain, href: '/teacher_dashboard/attentionlevel_dashboard' },
+            { name: 'Class Management', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' }
           ].map((item) => (
             <li key={item.name}>
               <a
                 href={item.href}
-                className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
+                className={`flex items-center px-4 py-3 rounded-lg ${
                   isActiveRoute(item.href)
                     ? 'bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white shadow-md'
-                    : 'hover:bg-gray-200 hover:text-white dark:hover:bg-gray-800 dark:hover:text-white'
+                    : 'hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-white dark:hover:text-gray-100'
                 }`}
               >
                 <item.icon className="text-lg mr-3" />
@@ -78,4 +75,5 @@ export default function Sidebar() {
       </nav>
     </div>
   );
+  
 }

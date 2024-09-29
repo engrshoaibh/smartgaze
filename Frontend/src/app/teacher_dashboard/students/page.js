@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
+import Header from '../../components/header';
 
 export default function Students() {
   const [students, setStudents] = useState([

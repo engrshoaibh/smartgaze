@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { FaBell, FaSearch, FaQuestion } from 'react-icons/fa';
-import NotificationWindow from './notification_window';
-import ProfileWindow from './profile_window';
+import NotificationWindow from '../admin_dashboard/components/notification_window';
+import ProfileWindow from '../admin_dashboard/components/profile_window';
 import ThemeBtn from '@/app/components/ThemeBtn';
 
 export default function Header() {
@@ -23,8 +23,10 @@ export default function Header() {
     setIsNotificationOpen(false); // Close notification window if profile is opened
   };
 
-  // Close windows if clicking outside of them
+
+
   useEffect(() => {
+  
     const handleClickOutside = (event) => {
       if (
         notificationRef.current &&
@@ -57,18 +59,8 @@ export default function Header() {
     <header className="relative flex justify-between items-center px-4 h-16">
       <div className="flex-grow"></div>
 
-      <div className="relative flex-grow max-w-lg">
-        <input
-          type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-full shadow-md dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)] focus:outline-none hover:bg-gray-200 dark:hover:bg-gray-600"
-          placeholder="Search..."
-        />
-        <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-300" />
-      </div>
-
       <div className="flex-grow flex justify-end items-center space-x-6">
         <ThemeBtn />
-        {/* Help Icon */}
         <div className="relative">
           <FaQuestion
             className="text-xl cursor-pointer text-gray-600 dark:text-gray-300"

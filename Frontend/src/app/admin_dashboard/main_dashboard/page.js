@@ -5,7 +5,7 @@ import AttendanceChart from '../components/attendance_chart'; // Your attendance
 import EmotionalChart from '../components/emotional_chart'; // Your emotional chart component
 import AttentionLevelChart from '../components/attention_level_chart'; // Your attention level chart component
 import Sidebar from '../components/side_nav';
-import Header from '../components/header';
+import Header from '../../components/header';
 import { FaUserGraduate, FaChalkboardTeacher, FaBriefcase, FaDollarSign } from 'react-icons/fa';
 
 export default function MainDashboard({ children }) {
