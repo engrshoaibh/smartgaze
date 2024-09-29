@@ -167,7 +167,7 @@ def capture_image_from_mobile_camera():
 # Get image interval and threshold from settings
 def get_settings():
     settings = settings_collection.find_one()
-    image_interval = settings.get("imageInterval", 10) * 60  # in seconds
+    image_interval = settings.get("imageInterval", 10)
     threshold = settings.get("threshold", 50)  # percentage
     return image_interval, threshold
 
@@ -208,23 +208,33 @@ def check_class_schedule():
 # Capture and process images based on interval and threshold
 def capture_and_process_images(course_id, class_end_time, image_interval, threshold):
     total_images = 0
-    end_time_reached = False
+    images_data = []  # Store attendance and emotion data for evaluation later
 
-    while not end_time_reached:
+    # Capture the first image immediately
+    frame = capture_image_from_mobile_camera()
+    if frame is not None:
+        student_id, emotion_label = recognize_faces_and_detect_emotions(frame, course_id)
+        total_images += 1
+        
+        # Print status for the first image captured
+        if student_id is not None:
+            attendance_status = "Present"  # Assume present if a match was found
+            print(f"Image {total_images}: Attendance Status - {attendance_status}, Emotion Status - {emotion_label}")
+            images_data.append((student_id, attendance_status, emotion_label))
+        else:
+            print(f"Image {total_images}: No student recognized.")
+            images_data.append((None, "Absent", None))
+    else:
+        logging.error("Failed to capture first image. Exiting.")
+        return
+
+    # Now enter the interval loop for subsequent images
+    while True:
         # Check if the current time exceeds the class end time
-        if datetime.now().time() > class_end_time:
-            logging.info(f"Class has ended. Total images taken: {total_images}")
-            end_time_reached = True
+        current_time = datetime.now().time()
+        if current_time > class_end_time:
+            logging.info(f"Class has ended at {class_end_time}. Total images taken: {total_images}")
             break  # Exit the loop when class ends
-
-        # Calculate the time remaining until class end
-        time_remaining = (datetime.combine(datetime.today(), class_end_time) - datetime.now()).total_seconds()
-
-        # If there's not enough time to wait for the next image interval, break and check for the next schedule
-        if time_remaining < image_interval:
-            logging.info(f"Not enough time remaining ({time_remaining} seconds) to wait for the next image capture.")
-            end_time_reached = True
-            break
 
         # Capture image from camera
         frame = capture_image_from_mobile_camera()
@@ -233,26 +243,23 @@ def capture_and_process_images(course_id, class_end_time, image_interval, thresh
             student_id, emotion_label = recognize_faces_and_detect_emotions(frame, course_id)
             total_images += 1
             
-            # Print status for each image captured
+            # Print status for each image captured and store data for evaluation
             if student_id is not None:
                 attendance_status = "Present"  # Assume present if a match was found
                 print(f"Image {total_images}: Attendance Status - {attendance_status}, Emotion Status - {emotion_label}")
+                images_data.append((student_id, attendance_status, emotion_label))
             else:
                 print(f"Image {total_images}: No student recognized.")
+                images_data.append((None, "Absent", None))
         else:
             logging.error("Failed to capture image.")
 
         # Wait for the specified image interval
         time.sleep(image_interval)
 
-        # After capturing an image, check if the current time exceeds the class end time again
-        if datetime.now().time() > class_end_time:
-            logging.info(f"Class has ended. Total images taken: {total_images}")
-            end_time_reached = True
-            break  # Exit the loop when class ends
-
-    # Calculate final attendance at the end of the class
-    calculate_final_attendance(total_images, threshold, course_id)
+    # After class has ended, calculate final attendance
+    print(f"Evaluating attendance for course {course_id}...")
+    calculate_final_attendance(images_data, threshold, course_id)
 
 # Start checking the class schedule
 if __name__ == "__main__":
