@@ -54,7 +54,7 @@ export default function Header() {
   ];
 
   return (
-    <header className="relative flex justify-between items-center px-4 bg-white dark:bg-gray-900 h-16 shadow-lg dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)] rounded-lg">
+    <header className="relative flex justify-between items-center px-4 h-16">
       <div className="flex-grow"></div>
 
       <div className="relative flex-grow max-w-lg">
