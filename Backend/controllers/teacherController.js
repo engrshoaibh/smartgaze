@@ -27,37 +27,20 @@ exports.getStudents = async (req, res) => {
   }
 };
 
-//Add Student to Class
+exports.getStudentsByClass = async (req, res) => {
 
-exports.addStudentToClass = async (req, res) => {
+
   try {
-    const classId = req.params.classId;
-    const { studentId } = req.body;
-
-    console.log(`Class ID: ${classId}, Student ID: ${studentId}`); // Log IDs for debugging
-
-    const updatedClass = await Class.findByIdAndUpdate(
-      classId,
-      { $addToSet: { students: studentId } },
-      { new: true }
-    );
-
-    if (!updatedClass) {
-      return res.status(404).json({ status: 'fail', message: 'Class not found' });
-    }
-
+    const className = req.body.className;
+    const students = await User.find({ class: className, role: 'student' });
     res.status(200).json({
       status: 'success',
-      message: 'Student added to class successfully',
-      data: { updatedClass }
+      data: { students }
     });
   } catch (err) {
-    console.error('Error adding student to class:', err); // Log error for debugging
     res.status(400).json({ status: 'fail', message: err.message });
   }
 };
-
-
 
 
 // Get attendance for a class

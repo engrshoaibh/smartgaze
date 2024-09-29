@@ -97,7 +97,26 @@ const getStudents = async () => {
     throw error;
   }
 };
-const getAllAssignedClasses = async () => {
+const getStudentsByClass  = async (className) => {
+  try {
+    const token = localStorage.getItem('token'); 
+    const response = await axios.post(`${API_URL}/teacher/users/getStudentsByClass`,
+    {
+      className
+    },    
+    {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    console.log('Students data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching teachers data:', error);
+    throw error;
+  }
+};
+const getAssignedClasses = async () => {
   try {
     const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/teacher/my-classes`, {
@@ -112,21 +131,24 @@ const getAllAssignedClasses = async () => {
   }
 };
 
-const addStudentToClass = async (classId, studentId) => {
+const addStudentToCourse = async (classId, courseCode, studentId) => {
   try {
-    const token = localStorage.getItem('token');
-    const response = await axios.post(`${API_URL}/teacher/class/${classId}/students`, {
-      studentId 
-    }, {
-      headers: {
-        Authorization: `Bearer ${token}` // Include the authorization token in the headers
+    const token = localStorage.getItem('token'); // Retrieve the token from local storage
+    const response = await axios.post(
+      `${API_URL}/class/${classId}/courses/${courseCode}/students`, 
+      { studentId }, 
+      {
+        headers: {
+          Authorization: `Bearer ${token}` // Include the authorization token in the headers
+        }
       }
-    });
+    );
     
     console.log(response.data.message); // Log success message
     return response.data; // Return the response data
   } catch (error) {
-    console.error('Error adding student to class:', error.response?.data || error.message);
+    console.error('Error adding student to course:', error.response?.data || error.message);
+    throw error; // Throw the error to be handled by the calling function
   }
 };
 
@@ -194,6 +216,57 @@ const getCustomizations = async () => {
   }
 };
 
+const removeStudentFromCourse = async (classId, courseCode, studentId) => {
+  try {
+    const token = localStorage.getItem('token');
+    const response = await axios.delete(`${API_URL}/class/${classId}/courses/${courseCode}/students/${studentId}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the authorization token in the headers
+      }
+    });
+
+    console.log(response.data.message); // Log success message
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error removing student from course:', error.response?.data || error.message);
+  }
+};
+const createOrUpdateSchedule = async (classId, courseCode,courseName, day, timeSlot) => {
+  try {
+    const token = localStorage.getItem('token');
+    
+    const response = await axios.post(`${API_URL}/class/${classId}/schedule`, {
+      courseCode,
+      courseName,
+      day,
+      timeSlot
+    }, {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the authorization token in the headers
+      }
+    });
+
+    console.log(response.data.message); // Log success message
+    return response.data; // Return the response data
+  } catch (error) {
+    console.error('Error creating/updating schedule:', error.response?.data || error.message);
+  }
+};
+
+const getCourseSchedule = async (classId, courseCode) => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/class/${classId}/schedule/${courseCode}`, {
+      headers: {
+        Authorization: `Bearer ${token}` // Include the authorization token in the headers
+      }
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error getting Course Schedule", error.message)
+  }
+}
 
 
-export { login, signup,forgotPassword,createClass,getTeachers,getStudents, getAllAssignedClasses,addStudentToClass,customizations,getCustomizations};
+export { getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations};

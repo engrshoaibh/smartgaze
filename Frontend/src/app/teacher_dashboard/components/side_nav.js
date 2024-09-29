@@ -55,9 +55,8 @@ export default function Sidebar() {
             { name: 'Attendance Dashboard', icon: FaUserCheck, href: '/teacher_dashboard/attendance_dashboard' },
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/teacher_dashboard/emotionalstate_dashboard' },
             { name: 'Attention Level Dashboard',  icon: FaBrain, href: '/teacher_dashboard/attentionlevel_dashboard' },
-            { name: 'Students', icon: FaUserPlus, href: '/teacher_dashboard/students' },
-            { name: 'Classes', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' },
-            { name: 'Customizations', icon: FaCogs, href: '/teacher_dashboard/customizations' },
+            { name: 'Class Management', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' },
+      
           ].map((item) => (
             <li key={item.name}>
               <a

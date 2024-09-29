@@ -218,10 +218,14 @@ const CreateClass = () => {
     const submissionData = {
       name: formData.className,
       section: formData.sectionName,
-      courseCodes: courseList.map(course => course.courseCode),
-      courseNames: courseList.map(course => course.courseName),
+      courses: courseList.map(course => ({
+        courseCode: course.courseCode,
+        courseName: course.courseName,
+        students: [] // Initially empty
+      })),
       description: formData.description,
       teacher: formData.teacher,
+      schedule: [] // Initially empty
     };
     console.log(submissionData)
     try {

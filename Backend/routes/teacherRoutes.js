@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.get('/my-classes', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.getMyClasses);
 router.get('/users/getStudents', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.getStudents);
-router.post('/class/:classId/students', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.addStudentToClass);
+router.post('/users/getStudentsByClass', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.getStudentsByClass);
 router.get('/class/:classId/attendance', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.getClassAttendance);
 router.get('/class/:classId/emotions', authMiddleware.protect, authMiddleware.restrictTo('teacher'), teacherController.getClassEmotions);
 
