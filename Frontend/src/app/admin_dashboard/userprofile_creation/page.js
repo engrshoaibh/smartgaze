@@ -5,8 +5,10 @@ import Header from '../components/header';
 import { useState, useEffect } from 'react';
 import { signup } from '../../../../../Backend/utils/api';
 import SuccessMessage from '../components/SuccessMessage';
+
 const ImageUpload = ({ image, setImage }) => {
-  
+  const defaultImage = '/images/add_image_icon.jpg';
+
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -22,7 +24,7 @@ const ImageUpload = ({ image, setImage }) => {
     <label htmlFor="file-upload" className="block cursor-pointer">
       <div className="relative">
         <img
-          src={image}
+          src={image || defaultImage}
           alt="Profile"
           className="w-24 h-24 rounded-full object-cover mb-4 border border-gray-300"
         />
@@ -406,7 +408,6 @@ export default function MainDashboard() {
               </div>
             </div>
   
-           {/* Create Profile Button */}
            <div className="mt-8 text-center">
               <button
                 type="submit"
@@ -414,8 +415,7 @@ export default function MainDashboard() {
                   hover:bg-gradient-to-br hover:from-[#2B3B4D] hover:to-[#4F6770] 
                   active:bg-gradient-to-br active:from-[#0E1B2A] active:to-[#2E4047] 
                   transition duration-300"
-              >
-                Create Profile
+              >Create Profile
               </button>
             </div>
           </form>

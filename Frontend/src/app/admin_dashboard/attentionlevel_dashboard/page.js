@@ -17,5 +17,4 @@ const NotDeveloped = () => {
     
   );
 };
-
 export default NotDeveloped;
