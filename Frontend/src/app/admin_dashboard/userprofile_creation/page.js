@@ -61,7 +61,7 @@ export default function MainDashboard() {
   const [departments, setDepartments] = useState([]);
   const [classes, setClasses] = useState([]);
   const [sections] = useState(['Select Section', 'A', 'B']); // Sections for students
-
+  const [text,setText] = useState("Create Student Profile");
   // Initialize batches and departments
   useEffect(() => {
     setBatches([
@@ -176,10 +176,21 @@ export default function MainDashboard() {
     setIsFormValid(isValid);
   }, [formValues, role, image]);
 
-  const handleRoleChange = (e) => setRole(e.target.value);
+  const handleRoleChange = (e) => {
+    if(e.target.value == "teacher"){
+      setText("Create Teacher Profile");
+    }
+    else{
+      setText("Create Student Profile");
+    }
+    setRole(e.target.value);
+
+  }
+    
 
   const handleChange = (e) => {
     const { id, value } = e.target;
+    
     setFormValues({ ...formValues, [id]: value });
   };
 
@@ -267,7 +278,7 @@ export default function MainDashboard() {
         <Header />
         <div className="flex justify-center items-center h-full ">
           <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-xl">
-            <h2 className="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Create User Profile</h2>
+            <h2 className="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">{text}</h2>
             <div className="flex flex-col justify-center items-center">
               <label className="block text-sm font-semibold text-gray-600 dark:text-gray-400 mb-4">Upload Image</label>
               <ImageUpload image={image} setImage={setImage} />
