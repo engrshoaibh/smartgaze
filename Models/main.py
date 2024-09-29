@@ -34,18 +34,23 @@ student_ids = []
 emotion_model = load_model('emotiondetector.h5')  # Ensure the path is correct
 emotion_labels = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
 
-def load_students_and_faces(student_ids):
-    global known_face_encodings, known_face_names
+# Updated global variable to store student name mapping
+student_name_map = {}
+
+def load_students_and_faces(enrolled_student_ids):
+    global known_face_encodings, known_face_names, student_name_map
     
     # Clear the existing known faces
     known_face_encodings = []
     known_face_names = []
+    student_ids.clear()  # Clear the student_ids to avoid carrying over old IDs
+    student_name_map.clear()  # Clear the previous name map
     
     # Fetch students from MongoDB
-    students = users_collection.find({"_id": {"$in": student_ids}})
+    students = users_collection.find({"_id": {"$in": enrolled_student_ids}})
     
     for student in students:
-        student_id = str(student["_id"])
+        student_id = str(student["_id"])  # Ensure it's a string
         name = student["name"]
         profile_pic_base64 = student.get("profilePic", "")
         
@@ -73,86 +78,55 @@ def load_students_and_faces(student_ids):
             known_face_encodings.append(face_encodings[0])
             known_face_names.append(name)
             student_ids.append(student_id)
+            student_name_map[student_id] = name  # Store name with ID as key
 
     logging.info(f"Loaded {len(known_face_names)} known faces for the course.")
 
-# Mark attendance for individual image captures
+# Updated mark_absent_students function
+def mark_absent_students(enrolled_student_ids, course_code):
+    current_time = datetime.now()
+    date_today = current_time.strftime("%Y-%m-%d")
+    
+    for student_id in enrolled_student_ids:
+        str_student_id = str(student_id)  # Convert ObjectId to string
+        attendance_collection.insert_one({
+            "student_id": str_student_id,
+            "course_id": course_code,
+            "date": date_today,
+            "present_count": 0,  # Initially mark as absent
+            "is_present": False,
+            "name": student_name_map.get(str_student_id, "Unknown"),  # Get student name from the map
+            "day": current_time.strftime("%A"),
+            "time_slot": "",  # Placeholder; will be filled during the final evaluation
+        })
+
+    logging.info(f"Marked all enrolled students as absent for course {course_code}.")
+
+# Mark attendance for recognized student
 def mark_attendance_for_image(student_id):
     current_time = datetime.now()
     date_today = current_time.strftime("%Y-%m-%d")
-
+    
     # Increment attendance presence for this student
-    attendance_collection.update_one(
+    result = attendance_collection.update_one(
         {"student_id": student_id, "date": date_today},
         {"$inc": {"present_count": 1}},  # Increment present count
         upsert=True
     )
+    logging.info(f"Attendance updated for {student_id} on {date_today}. Modified count: {result.modified_count}")
 
-# Store emotions in separate collection
+# Store emotion data for the recognized student
 def store_emotion_data(student_id, emotion_label, course_id):
     current_time = datetime.now()
-
-    # Insert emotion data into the emotions collection
+    
     emotions_collection.insert_one({
         "student_id": student_id,
         "course_id": course_id,
         "emotion": emotion_label,
         "timestamp": current_time
     })
-
     logging.info(f"Stored emotion {emotion_label} for student {student_id}")
 
-# Calculate final attendance based on threshold
-def calculate_final_attendance(total_images, threshold, course_id):
-    for student_id in student_ids:
-        student_attendance = attendance_collection.find_one({"student_id": student_id, "course_id": course_id})
-        present_count = student_attendance.get("present_count", 0)
-        percentage_present = (present_count / total_images) * 100
-
-        status = "Present" if percentage_present >= threshold else "Absent"
-        logging.info(f"Student {student_id} is marked as {status} (Present in {percentage_present}% of images)")
-        
-        # Update final attendance status in the database
-        attendance_collection.update_one(
-            {"student_id": student_id, "course_id": course_id},
-            {"$set": {"is_present": status == "Present"}}
-        )
-
-# Recognize faces, detect emotions, and mark attendance
-def recognize_faces_and_detect_emotions(frame, course_id):
-    face_locations = face_recognition.face_locations(frame)
-    face_encodings = face_recognition.face_encodings(frame, face_locations)
-
-    for face_encoding, face_location in zip(face_encodings, face_locations):
-        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
-        best_match_index = np.argmin(face_distances)
-
-        if matches[best_match_index]:
-            student_id = student_ids[best_match_index]
-            
-            # Crop the face for emotion detection
-            top, right, bottom, left = face_location
-            face_image = frame[top:bottom, left:right]
-            face_image_resized = cv2.resize(face_image, (48, 48))  # Resize to fit the emotion model input size
-            face_image_gray = cv2.cvtColor(face_image_resized, cv2.COLOR_BGR2GRAY)  # Convert to grayscale
-            face_image_gray = np.expand_dims(face_image_gray, axis=(0, -1)) / 255.0  # Normalize and reshape for the model
-            
-            # Predict emotion
-            emotion_prediction = emotion_model.predict(face_image_gray)
-            emotion_label = emotion_labels[np.argmax(emotion_prediction)]
-            
-            # Mark attendance and store emotion
-            mark_attendance_for_image(student_id)
-            store_emotion_data(student_id, emotion_label, course_id)
-
-            # Print attendance status and emotion
-            print(f"Student ID: {student_id}, Emotion: {emotion_label}")
-            return student_id, emotion_label  # Return for further processing
-        else:
-            logging.info("Unknown face detected.")
-            return None, None  # Return None if no match found
-        
 # Capture image from camera (mobile camera URL example)
 def capture_image_from_mobile_camera():
     camera_url = 'http://192.168.100.2:8080/video'
@@ -196,71 +170,68 @@ def check_class_schedule():
                     # Load students and their face encodings
                     load_students_and_faces(enrolled_student_ids)
 
+                    # Mark all enrolled students as absent in MongoDB
+                    mark_absent_students(enrolled_student_ids, course_code)
+
                     image_interval, threshold = get_settings()
                     capture_and_process_images(course_code, end_time, image_interval, threshold)
                 else:
-                    logging.info("No class scheduled at this time.")  # Log without course_code reference
+                    logging.info("No ongoing class at this time.")
         else:
-            logging.info(f"No classes scheduled for today ({current_day})")
+            logging.info("No classes scheduled today.")
 
-        time.sleep(5)  # Check again after 5 seconds
+        time.sleep(5)  # Wait for 5 seconds before checking again
 
-# Capture and process images based on interval and threshold
-def capture_and_process_images(course_id, class_end_time, image_interval, threshold):
-    total_images = 0
-    images_data = []  # Store attendance and emotion data for evaluation later
+def recognize_faces_and_detect_emotions(frame):
+    face_locations = face_recognition.face_locations(frame)
+    face_encodings = face_recognition.face_encodings(frame, face_locations)
 
-    # Capture the first image immediately
-    frame = capture_image_from_mobile_camera()
-    if frame is not None:
-        student_id, emotion_label = recognize_faces_and_detect_emotions(frame, course_id)
-        total_images += 1
-        
-        # Print status for the first image captured
-        if student_id is not None:
-            attendance_status = "Present"  # Assume present if a match was found
-            print(f"Image {total_images}: Attendance Status - {attendance_status}, Emotion Status - {emotion_label}")
-            images_data.append((student_id, attendance_status, emotion_label))
-        else:
-            print(f"Image {total_images}: No student recognized.")
-            images_data.append((None, "Absent", None))
-    else:
-        logging.error("Failed to capture first image. Exiting.")
-        return
+    if not face_encodings:  # No faces detected
+        return None, "No face detected"  # Return None and a message
 
-    # Now enter the interval loop for subsequent images
-    while True:
-        # Check if the current time exceeds the class end time
-        current_time = datetime.now().time()
-        if current_time > class_end_time:
-            logging.info(f"Class has ended at {class_end_time}. Total images taken: {total_images}")
-            break  # Exit the loop when class ends
+    for face_encoding, face_location in zip(face_encodings, face_locations):
+        matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
+        face_distances = face_recognition.face_distance(known_face_encodings, face_encoding)
+        best_match_index = np.argmin(face_distances)
 
-        # Capture image from camera
+        if matches[best_match_index]:
+            student_id = student_ids[best_match_index]
+
+            # Crop the face for emotion detection
+            top, right, bottom, left = face_location
+            face_image = frame[top:bottom, left:right]
+            face_image_resized = cv2.resize(face_image, (48, 48))
+            face_image_gray = cv2.cvtColor(face_image_resized, cv2.COLOR_BGR2GRAY)
+            face_image_gray = np.expand_dims(face_image_gray, axis=(0, -1)) / 255.0
+
+            # Predict emotion
+            emotion_prediction = emotion_model.predict(face_image_gray)
+            emotion_label = emotion_labels[np.argmax(emotion_prediction)]
+
+            return student_id, emotion_label  # Return both values
+
+    return None, "No match found"  # If no matches found, return None
+
+def capture_and_process_images(course_code, end_time, image_interval, threshold):
+    image_count = 0  # Counter for captured images
+
+    while datetime.now().time() <= end_time:
         frame = capture_image_from_mobile_camera()
         if frame is not None:
-            # Recognize faces and detect emotions
-            student_id, emotion_label = recognize_faces_and_detect_emotions(frame, course_id)
-            total_images += 1
-            
-            # Print status for each image captured and store data for evaluation
-            if student_id is not None:
-                attendance_status = "Present"  # Assume present if a match was found
-                print(f"Image {total_images}: Attendance Status - {attendance_status}, Emotion Status - {emotion_label}")
-                images_data.append((student_id, attendance_status, emotion_label))
-            else:
-                print(f"Image {total_images}: No student recognized.")
-                images_data.append((None, "Absent", None))
-        else:
-            logging.error("Failed to capture image.")
+            image_count += 1  # Increment image count
+            student_id, emotion_label = recognize_faces_and_detect_emotions(frame)
 
-        # Wait for the specified image interval
-        time.sleep(image_interval)
+            # Log image capture and processing results
+            logging.info(f"Image {image_count} captured. Student ID: {student_id}, Emotion: {emotion_label}")
 
-    # After class has ended, calculate final attendance
-    print(f"Evaluating attendance for course {course_id}...")
-    calculate_final_attendance(images_data, threshold, course_id)
+            if student_id:
+                mark_attendance_for_image(student_id)
+                store_emotion_data(student_id, emotion_label, course_code)
 
-# Start checking the class schedule
-if __name__ == "__main__":
-    check_class_schedule()
+        # Wait for the specified interval before capturing the next image
+        time.sleep(image_interval)  # Convert minutes to seconds
+
+    logging.info(f"Finished capturing {image_count} images for course {course_code}.")
+
+# Start the class schedule checking
+check_class_schedule()
