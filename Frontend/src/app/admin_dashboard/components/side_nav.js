@@ -62,7 +62,6 @@ export default function Sidebar() {
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/admin_dashboard/emotionalstate_dashboard' },
             { name: 'Attention Level Dashboard', icon: FaBrain, href: '/admin_dashboard/attentionlevel_dashboard' },
             { name: 'User Profile Creation', icon: FaUserPlus, href: '/admin_dashboard/userprofile_creation' },
-            { name: 'Customizations', icon: FaCogs, href: '/admin_dashboard/customizations' },
             { name: 'Create Class', icon: FaChalkboardTeacher, href: '/admin_dashboard/class_creation' },
           ].map((item) => (
             <li key={item.name}>
