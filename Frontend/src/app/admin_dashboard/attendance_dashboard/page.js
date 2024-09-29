@@ -180,7 +180,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphClass}
                     onChange={onGraphClassChange}
-                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1"
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1"
                   >
                     <option value="">All Classes</option>
                     {classes.map((className, idx) => (
@@ -193,7 +193,7 @@ const AttendanceDashboard = () => {
                   <select
                     value={selectedGraphTeacher}
                     onChange={onGraphTeacherChange}
-                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 ml-2"
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 ml-2"
                   >
                     <option value="">All Teachers</option>
                     {teachers.map((teacher, idx) => (
@@ -219,7 +219,7 @@ const AttendanceDashboard = () => {
                     setSelectedClass(e.target.value);
                     handleFilterChange();  // Call handleFilterChange after setting selected class
                   }}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
                   <option value="">All Classes</option>
                   {classes.map((className, idx) => (
@@ -237,7 +237,7 @@ const AttendanceDashboard = () => {
                     setSelectedTeacher(e.target.value);
                     handleFilterChange();  // Call handleFilterChange after setting selected teacher
                   }}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
                   <option value="">All Teachers</option>
                   {teachers.map((teacher, idx) => (
@@ -263,7 +263,7 @@ const AttendanceDashboard = () => {
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="Start Date"
                 />
 
@@ -276,7 +276,7 @@ const AttendanceDashboard = () => {
                   selectsEnd
                   startDate={startDate}
                   endDate={endDate}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="End Date"
                 />
               </div>

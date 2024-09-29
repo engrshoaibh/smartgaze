@@ -259,7 +259,7 @@ const CreateClass = () => {
       <Sidebar />
       <main className="flex-1 p-6">
         <Header />
-        <div className="flex justify-center items-center mt-12">
+        <div className="flex justify-center items-center mt-2">
           <div className="w-full md:w-1/2 bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
             <h1 className="text-xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">Create Class</h1>
             <form onSubmit={handleSubmit} className="space-y-6">

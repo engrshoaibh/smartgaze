@@ -8,7 +8,6 @@ import {
   FaSmile,
   FaBrain,
   FaUserPlus,
-  FaCogs,
   FaChevronRight,
   FaChevronLeft,
   FaChalkboardTeacher
@@ -70,7 +69,7 @@ export default function Sidebar() {
                 className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 
                   ${isActiveRoute(item.href)
                     ? 'bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white shadow-md'
-                    : 'hover:bg-gray-200 dark:hover:bg-gray-800 hover:text-white'}`}
+                    : 'hover:bg-gray-200 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white'}`}
               >
                 <item.icon className="text-lg mr-3" />
                 {isExpanded && <span className="text-sm font-normal">{item.name}</span>}

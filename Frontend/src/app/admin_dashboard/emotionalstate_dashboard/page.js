@@ -171,7 +171,7 @@ const EmotionalDashboard = () => {
                   <select
                     value={selectedGraphClass}
                     onChange={onGraphClassChange}
-                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1"
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1"
                   >
                     <option value="">All Classes</option>
                     {classes.map((className, idx) => (
@@ -184,7 +184,7 @@ const EmotionalDashboard = () => {
                   <select
                     value={selectedGraphStudent}
                     onChange={onGraphStudentChange}
-                    className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 ml-2"
+                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 ml-2"
                   >
                     <option value="">All Students</option>
                     {students.map((student, idx) => (
@@ -210,7 +210,7 @@ const EmotionalDashboard = () => {
                     setSelectedClass(e.target.value);
                     handleFilterChange();  // Call handleFilterChange after setting selected class
                   }}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
                   <option value="">All Classes</option>
                   {classes.map((className, idx) => (
@@ -228,7 +228,7 @@ const EmotionalDashboard = () => {
                     setSelectedStudent(e.target.value);
                     handleFilterChange();  // Call handleFilterChange after setting selected student
                   }}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
                   <option value="">All Students</option>
                   {students.map((student, idx) => (
@@ -254,7 +254,7 @@ const EmotionalDashboard = () => {
                   selectsStart
                   startDate={startDate}
                   endDate={endDate}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="Start Date"
                 />
 
@@ -267,7 +267,7 @@ const EmotionalDashboard = () => {
                   selectsEnd
                   startDate={startDate}
                   endDate={endDate}
-                  className="border dark:border-gray-700 bg-gray-700 text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
+                  className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full text-sm"
                   placeholderText="End Date"
                 />
               </div>
