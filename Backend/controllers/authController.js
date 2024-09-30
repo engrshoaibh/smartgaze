@@ -2,7 +2,7 @@
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const {mailSender} =  require('../utils/mailSender');
-const bcrypt = require('bcrypt');
+
 function generatePassword() {
   const part1 = Math.floor(1000 + Math.random() * 9000).toString(); 
   const part2 = Math.floor(100 + Math.random() * 900).toString();
@@ -12,7 +12,6 @@ function generatePassword() {
 exports.signup = async (req, res) => {
   try {
     const { name, email, phoneNumber, password, role, classInfo, section, batch, department, profileImage } = req.body;
-
     let userData;
     
     if (role === 'student') {

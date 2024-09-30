@@ -11,6 +11,7 @@ const login = async (data) => {
 
 const signup = async (userData) => {
   try {
+    console.log(userData)
     const response = await axios.post(`${API_URL}/auth/signup`, userData, {
       headers: {
         'Content-Type': 'application/json',
@@ -94,6 +95,22 @@ const getStudents = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching teachers data:', error);
+    throw error;
+  }
+};
+
+const getUsers = async () => {
+  try {
+    const token = localStorage.getItem('token'); 
+    const response = await axios.get(`${API_URL}/admin/users/getUsers`, {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    console.log('All Users data:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching users data:', error);
     throw error;
   }
 };
@@ -283,5 +300,9 @@ const getDashboardStats = async () => {
   }
 };
 
+<<<<<<< Updated upstream
 
 export { getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};
+=======
+export {getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations};
+>>>>>>> Stashed changes

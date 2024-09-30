@@ -5,6 +5,7 @@ const authMiddleware = require('../utils/authMiddleware');
 const router = express.Router();
 
 router.get('/users/getTeachers', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.getTeachers);
+router.get('/users/getUsers', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.getUsers);
 router.post('/users/customizations', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.customizations);
 router.get('/users/getCustomizations', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.getCustomizations);
 router.get('/users/:id', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.getUserById);
