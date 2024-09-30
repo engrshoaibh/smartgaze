@@ -15,8 +15,8 @@ export default function AttendanceChart() {
     datasets: [
       {
         label: 'Attendance',
-        backgroundColor: ['#3b82f6', '#22d3ee'], // Colors for Present and Absent
-        data: [1420, 220], // Total attendance data (sum of daily records)
+        backgroundColor: ['#6B8E23', '#D8BFD8'],
+        data: [1420, 220],
       },
     ],
   };

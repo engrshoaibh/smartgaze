@@ -4,23 +4,27 @@ import { Pie } from 'react-chartjs-2';
 
 const EmotionalChart = () => {
   const data = {
-    labels: ['Happy', 'Sad', 'Angry', 'Surprised', 'Neutral'],
+    labels: ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral'],
     datasets: [
       {
-        data: [25, 15, 10, 30, 20], // Sample data
+        data: [15, 10, 15, 10, 30, 10, 10], // Sample data
         backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF',
+          '#87CEEB', 
+          '#B0E0E6', 
+          '#4682B4', 
+          '#7B68EE', 
+          '#008080', 
+          '#E0FFFF', 
+          '#708090', 
         ],
         hoverBackgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
-          '#4BC0C0',
-          '#9966FF',
+          '#6EC3E3', 
+          '#A8D6D9', 
+          '#3B6A94', 
+          '#6A5CE5', 
+          '#007B7B', 
+          '#C4E4E4', 
+          '#657D8D', 
         ],
       },
     ],

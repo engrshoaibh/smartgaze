@@ -7,16 +7,16 @@ const AttentionLevelChart = () => {
     labels: ['High', 'Medium', 'Low'],
     datasets: [
       {
-        data: [50, 30, 20], // Sample data
+        data: [50, 30, 20],
         backgroundColor: [
-          '#FF6384',
-          '#36A2EB',
+          '#008080',
+          '#E0FFFF',
           '#FFCE56',
         ],
         hoverBackgroundColor: [
-          '#FF6384',
-          '#36A2EB',
-          '#FFCE56',
+          '#007070',
+          '#B0E0E6',
+          '#FFC107',
         ],
       },
     ],
