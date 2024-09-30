@@ -32,10 +32,9 @@ const UserRecords = () => {
         fetchRecords();
     }, [isModalOpen]);
 
-    // Function to handle search input change
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
-        setCurrentPage(1); // Reset to the first page on new search
+        setCurrentPage(1);
     };
 
     const filteredRecords = records.filter(record => {
@@ -61,27 +60,32 @@ const UserRecords = () => {
     };
 
     const handleDeleteRecord = async (id) => {
-        // Optimistically remove the record from the UI
         const updatedRecords = records.filter(record => record._id !== id);
         setRecords(updatedRecords); 
         const response = await deleteUser(id);
         console.log(response);
         
-        if (response == "204") {
+        if (response.status === 204) {
             alert("Record Deleted Successfully 😲");
-            // Optionally, refetch records to ensure state is accurate
-            fetchRecords(); 
         } else {
-            // If deletion fails, add the record back to the UI
             setRecords(records); // Restore original records
             alert("Failed to delete record.");
         }
     };
 
+    // Function to handle the update of a record
+    const handleUpdateRecord = (updatedRecord) => {
+        setRecords(prevRecords => 
+            prevRecords.map(record => 
+                record._id === updatedRecord._id ? updatedRecord : record
+            )
+        );
+        closeModal();
+    };
+
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedRecord(null);
-        fetchRecords(); // Refresh records after closing modal
     };
 
     const goToPage = (page) => {
@@ -159,45 +163,43 @@ const UserRecords = () => {
                     )}
                 </tbody>
             </table>
-            
-            {/* Pagination Controls */}
-           
+
             {paginatedRecords.length > 0 ? (
-                 <div className="flex justify-center space-x-2 mt-4">
-                 <button
-                     className={`px-3 py-1 border ${currentPage === 1 ? 'text-gray-400' : 'text-blue-600'}`}
-                     onClick={() => goToPage(currentPage - 1)}
-                     disabled={currentPage === 1}
-                 >
-                     Previous
-                 </button>
-                 {Array.from({ length: totalPages }, (_, i) => (
-                     <button
-                         key={i}
-                         className={`px-3 py-1 border ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
-                         onClick={() => goToPage(i + 1)}
-                     >
-                         {i + 1}
-                     </button>
-                 ))}
-                 <button
-                     className={`px-3 py-1 border ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-600'}`}
-                     onClick={() => goToPage(currentPage + 1)}
-                     disabled={currentPage === totalPages}
-                 >
-                     Next
-                 </button>
-             </div>
-            ): (
-                null
-            )}
+                <div className="flex justify-center space-x-2 mt-4">
+                    <button
+                        className={`px-3 py-1 border ${currentPage === 1 ? 'text-gray-400' : 'text-blue-600'}`}
+                        onClick={() => goToPage(currentPage - 1)}
+                        disabled={currentPage === 1}
+                    >
+                        Previous
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => (
+                        <button
+                            key={i}
+                            className={`px-3 py-1 border ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                            onClick={() => goToPage(i + 1)}
+                        >
+                            {i + 1}
+                        </button>
+                    ))}
+                    <button
+                        className={`px-3 py-1 border ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-600'}`}
+                        onClick={() => goToPage(currentPage + 1)}
+                        disabled={currentPage === totalPages}
+                    >
+                        Next
+                    </button>
+                </div>
+            ) : null}
+
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
                     <div className="fixed inset-0 bg-gray-800 opacity-50"></div>
                     <div className="rounded-lg p-6 relative z-10 w-full max-w-2xl ">
                         <UpdateProfileForm
                             record={selectedRecord}
-                            closeModal={closeModal} 
+                            closeModal={closeModal}
+                            onUpdateRecord={handleUpdateRecord} // Pass the handler to the form
                         />
                     </div>
                 </div>

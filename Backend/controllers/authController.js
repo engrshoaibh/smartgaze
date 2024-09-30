@@ -1,19 +1,40 @@
 
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const {mailSender} =  require('../utils/mailSender');
+const { mailSender } = require('../utils/mailSender');
 
 function generatePassword() {
-  const part1 = Math.floor(1000 + Math.random() * 9000).toString(); 
+  const part1 = Math.floor(1000 + Math.random() * 9000).toString();
   const part2 = Math.floor(100 + Math.random() * 900).toString();
   const password = `${part1}-${part2}`; // Fixed template string syntax
   return password;
 }
 exports.signup = async (req, res) => {
   try {
-    const { name, email, phoneNumber, password, role, classInfo, section, batch, department, profileImage } = req.body;
+    const {
+      name,
+      email,
+      phoneNumber,
+      password,
+      role,
+      classInfo,
+      section,
+      batch,
+      department,
+      profileImage
+    } = req.body;
+
     let userData;
-    
+
+    // Check if the user already exists based on email
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'User with this email already exists.'
+      });
+    }
+
     if (role === 'student') {
       // 1. Count existing students
       const studentCount = await User.countDocuments({ role: 'student' });
@@ -31,22 +52,26 @@ exports.signup = async (req, res) => {
         phoneNumber,
         password,
         role,
-        class: classInfo, // Class, Section, and Batch for students
+        class: classInfo,
         section,
         batch,
-        rollno: studentID, // Set the generated Rollno
-        profilePic: profileImage // Add profile image to user data
+        department,
+        rollno: studentID, 
+        profilePic: profileImage || 'default_profile_pic.png' // Add default profile image if none provided
       };
     } else if (role === 'teacher') {
+      // Don't include rollno for teachers
       userData = {
         name,
         email,
         phoneNumber,
         password,
         role,
-        department, // Department for teachers
-        profilePic: profileImage // Add profile image to user data
+        department,
+        profilePic: profileImage || 'default_profile_pic.png' // Add default profile image if none provided
       };
+      console.log("Teacher Data", userData);
+
     } else {
       return res.status(400).json({
         status: 'fail',
@@ -57,22 +82,37 @@ exports.signup = async (req, res) => {
     // Create the new user
     const newUser = await User.create(userData);
 
-    
+    // Prepare mail options
+    let mailOptions;
 
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: newUser.email, 
-      subject: 'Welcome to Our Service',
-      text: `Hello ${newUser.name},\n\nYour account has been created successfully.\n\nYour credentials are:\nEmail: ${newUser.email}\nPassword: ${password}\nYour Roll Number: ${newUser.rollno}\n\nPlease keep this information safe.\n\nThank you for joining us!`,
-      html: `<p>Hello ${newUser.name},</p>
-             <p>Your Smart Gaze credentials are:</p>
-             <p>Email: <strong>${newUser.email}</strong><br>Password: <strong>${password}</strong><br>Roll Number: <strong>${newUser.rollno}</strong></p>
-             <p>Please keep this information safe.</p>
-             <p>Thank you for joining us!</p>`,
-    };
+    if (role === 'student') {
+      mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: newUser.email,
+        subject: 'Welcome to Our Service',
+        text: `Hello ${newUser.name},\n\nYour account has been created successfully.\n\nYour credentials are:\nEmail: ${newUser.email}\nPassword: ${password}\nYour Roll Number: ${newUser.rollno}\n\nPlease keep this information safe.\n\nThank you for joining us!`,
+        html: `<p>Hello ${newUser.name},</p>
+               <p>Your Smart Gaze credentials are:</p>
+               <p>Email: <strong>${newUser.email}</strong><br>Password: <strong>${password}</strong><br>Roll Number: <strong>${newUser.rollno}</strong></p>
+               <p>Please keep this information safe.</p>
+               <p>Thank you for joining us!</p>`,
+      };
+    } else if (role === 'teacher') {
+      mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: newUser.email,
+        subject: 'Welcome to Our Service',
+        text: `Hello ${newUser.name},\n\nYour account has been created successfully.\n\nYour credentials are:\nEmail: ${newUser.email}\nPassword: ${password}\n\nPlease keep this information safe.\n\nThank you for joining us!`,
+        html: `<p>Hello ${newUser.name},</p>
+               <p>Your Smart Gaze credentials are:</p>
+               <p>Email: <strong>${newUser.email}</strong><br>Password: <strong>${password}</strong></p>
+               <p>Please keep this information safe.</p>
+               <p>Thank you for joining us!</p>`,
+      };
+    }
 
     await mailSender(mailOptions);
+
     // Respond with success
     res.status(201).json({
       status: 'success',
@@ -81,12 +121,14 @@ exports.signup = async (req, res) => {
 
   } catch (err) {
     // Handle error during signup
+    console.error('Signup error:', err); // Log error details for debugging
     res.status(400).json({
       status: 'fail',
-      message: err.message
+      message: 'An error occurred during signup. Please try again later.'
     });
   }
 };
+
 
 
 
@@ -119,7 +161,7 @@ exports.login = async (req, res) => {
       // Student login via rollno
       const rollno = email; // If it's not an email, treat the input as rollno
       user = await User.findOne({ rollno });
-      
+
       if (!user || !(await user.correctPassword(password, user.password))) {
         return res.status(401).json({
           status: 'fail',
@@ -140,7 +182,7 @@ exports.login = async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '1d',
     });
-  
+
 
     res.status(200).json({
       status: 'success',
@@ -157,9 +199,9 @@ exports.login = async (req, res) => {
 
 exports.resetPassword = async (req, res) => {
   try {
-	const {email} = req.body;
+    const { email } = req.body;
 
-    const user = await User.findOne({email});
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(400).json({
@@ -168,11 +210,11 @@ exports.resetPassword = async (req, res) => {
       });
     }
 
-    const newPassword = generatePassword(); 
+    const newPassword = generatePassword();
 
     user.password = newPassword;
 
-    await user.save(); 
+    await user.save();
 
     const mailOptions = {
       from: process.env.EMAIL_USER,

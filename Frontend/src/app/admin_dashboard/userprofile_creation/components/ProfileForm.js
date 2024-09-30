@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload'; // Assuming ImageUpload is in the same directory
 
 const ProfileForm = ({

@@ -99,7 +99,7 @@ exports.getUserById = async (req, res) => {
 // Update user details
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+    const user = await User.findByIdAndUpdate(req.params.id, req.body.data, {
       new: true,
       runValidators: true
     });

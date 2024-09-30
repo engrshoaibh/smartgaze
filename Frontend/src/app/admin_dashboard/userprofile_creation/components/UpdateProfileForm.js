@@ -3,7 +3,7 @@ import ImageUpload from './ImageUpload';
 import preDefinedData from './preDefinedData';
 import { updateUser } from '../../../../../../Backend/utils/api';
 
-const UpdateProfileForm = ({record,closeModal}) => {
+const UpdateProfileForm = ({record,closeModal, onUpdateRecord}) => {
     const { batches, departments, departmentClasses } = preDefinedData;
 
     const [classes, setClasses] = useState([]);
@@ -63,7 +63,6 @@ const handleSubmit = async (e) => {
 
     // Only submit if the form is valid
     if (validateForm()) {
-        // Prepare formData based on role
         const formData = {
             name: formValues.name,
             email: formValues.email,
@@ -75,15 +74,15 @@ const handleSubmit = async (e) => {
 
         // Add student-specific fields only if the role is student
         if (role === 'student') {
-            formData.classInfo = formValues.classInfo;
+            formData.class = formValues.classInfo;
             formData.section = formValues.section;
             formData.batch = formValues.batch;
         }
 
-        console.log("Updated Data:", formData,record._id);
-                // Submit the form (e.g., send formData to backend)
+      
+               
         const response = await updateUser(formData,record._id);
-
+        onUpdateRecord(response.data);
         // Example handling after form submission
         if (response?.status === "success") {
             closeModal(); // Close modal after successful submission

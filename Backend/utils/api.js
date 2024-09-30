@@ -11,7 +11,7 @@ const login = async (data) => {
 
 const signup = async (userData) => {
   try {
-    console.log(userData)
+    console.log("Create Profile",userData)
     const response = await axios.post(`${API_URL}/auth/signup`, userData, {
       headers: {
         'Content-Type': 'application/json',
@@ -302,6 +302,7 @@ const getDashboardStats = async () => {
 
 const updateUser = async (data,userId) => {
   try {
+    console.log("Updated Received:", data,userId);
     const token = localStorage.getItem('token'); 
     const response = await axios.put(`${API_URL}/admin/users/${userId}`, 
       {
