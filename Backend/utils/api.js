@@ -300,9 +300,5 @@ const getDashboardStats = async () => {
   }
 };
 
-<<<<<<< Updated upstream
 
-export { getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};
-=======
-export {getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations};
->>>>>>> Stashed changes
+export {getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};
