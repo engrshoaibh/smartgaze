@@ -1,29 +1,49 @@
 const User = require('../models/User');
+const Class = require('../models/Class');
 const Customization = require('../models/Customization');
 
-//customizations
+// Dashboard Stats Function (formerly in mainDashboardController)
+exports.getDashboardStats = async (req, res) => {
+  try {
+    const totalStudents = await User.countDocuments({ role: 'student' });
+    const totalTeachers = await User.countDocuments({ role: 'teacher' });
+    const totalAdmins = await User.countDocuments({role: 'admin'})
+    const totalClasses = await Class.countDocuments();
+
+    return res.status(200).json({
+      students: totalStudents,
+      teachers: totalTeachers,
+      admins: totalAdmins,
+      classes: totalClasses,
+
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    return res.status(500).json({ message: 'Error fetching dashboard stats' });
+  }
+};
+
+// Existing Functions in adminController
 exports.customizations = async (req, res) => {
   try {
     const { imageInterval, threshold } = req.body;
 
-    // Find the first document (assuming there's only one) and update it, or create a new one if it doesn't exist
     const updatedCustomization = await Customization.findOneAndUpdate(
-      {}, // Empty filter to find the first (and only) document
-      { imageInterval, threshold }, // Fields to update
-      { new: true, upsert: true } // Create if not exists, return the updated document
+      {},
+      { imageInterval, threshold },
+      { new: true, upsert: true }
     );
 
-    // If the customization was updated successfully, return the updated document
     return res.status(200).json({
       message: 'Customization updated successfully',
       customization: updatedCustomization,
     });
-
   } catch (error) {
     console.error('Error updating customization:', error);
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 exports.getCustomizations = async (req, res) => {
   try {
     const customizations = await Customization.findOne();
@@ -48,7 +68,6 @@ exports.getTeachers = async (req, res) => {
     res.status(400).json({ status: 'fail', message: err.message });
   }
 };
-
 
 // Get a single user by ID
 exports.getUserById = async (req, res) => {

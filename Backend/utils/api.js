@@ -268,5 +268,20 @@ const getCourseSchedule = async (classId, courseCode) => {
   }
 }
 
+const getDashboardStats = async () => {
+  try {
+    const token = localStorage.getItem('token'); // Use token for authentication if needed
+    const response = await axios.get(`${API_URL}/admin/dashboardStats`, {
+      headers: {
+        Authorization: `Bearer ${token}`,  // Pass the token if your backend uses authentication
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    throw error;
+  }
+};
 
-export { getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations};
+
+export { getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};

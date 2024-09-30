@@ -10,5 +10,6 @@ router.get('/users/getCustomizations', authMiddleware.protect, authMiddleware.re
 router.get('/users/:id', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.getUserById);
 router.put('/users/:id', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.updateUser);
 router.delete('/users/:id', authMiddleware.protect, authMiddleware.restrictTo('admin'), adminController.deleteUser);
+router.get('/dashboardStats', adminController.getDashboardStats);
 
 module.exports = router;

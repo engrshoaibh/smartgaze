@@ -1,14 +1,31 @@
 "use client";
 
 import StatisticsCard from '../components/statistics_card';
-import AttendanceChart from '../components/attendance_chart'; // Your attendance chart component
-import EmotionalChart from '../components/emotional_chart'; // Your emotional chart component
-import AttentionLevelChart from '../components/attention_level_chart'; // Your attention level chart component
+import AttendanceChart from '../components/attendance_chart';
+import EmotionalChart from '../components/emotional_chart';
+import AttentionLevelChart from '../components/attention_level_chart';
 import Sidebar from '../components/side_nav';
 import Header from '../../components/header';
-import { FaUserGraduate, FaChalkboardTeacher, FaBriefcase, FaDollarSign } from 'react-icons/fa';
+import { FaUserGraduate, FaChalkboardTeacher, FaBriefcase, FaUserShield } from 'react-icons/fa';
+import { useState, useEffect } from 'react';
+import { getDashboardStats } from '../../../../../Backend/utils/api';
 
-export default function MainDashboard({ children }) {
+export default function MainDashboard({}) {
+  const [stats, setStats] = useState({ students: 0, teachers: 0, classes: 0, admins: 0 });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const data = await getDashboardStats();
+        setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch dashboard stats:', error);
+      }
+    };
+
+    fetchStats();
+  }, []);
+
   return (
     <div className="flex min-h-screen bg-gray-100 dark:bg-gray-900">
       <Sidebar />
@@ -19,20 +36,24 @@ export default function MainDashboard({ children }) {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 w-full max-w-7xl">
             <StatisticsCard 
               title="Total Students" 
-              value="2500" 
+              value={stats.students} 
               icon={<FaUserGraduate size={24} />} 
             />
             <StatisticsCard 
               title="Total Teachers" 
-              value="150" 
+              value={stats.teachers}
               icon={<FaChalkboardTeacher size={24} />} 
             />
             <StatisticsCard 
               title="Total Classes" 
-              value="16" 
+              value={stats.classes}
               icon={<FaBriefcase size={24} />} 
             />
-
+            <StatisticsCard 
+              title="Total Admins" 
+              value={stats.admins} 
+              icon={<FaUserShield size={24} />} 
+            />
           </div>
 
           {/* Graphs Section */}
