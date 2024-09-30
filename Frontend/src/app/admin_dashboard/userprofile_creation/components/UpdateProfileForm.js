@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
 import preDefinedData from './preDefinedData';
 
-const UpdateProfileForm = () => {
+const UpdateProfileForm = ({record,closeModal}) => {
     const { batches, departments, departmentClasses } = preDefinedData;
 
     const [classes, setClasses] = useState([]);
@@ -71,10 +71,7 @@ const UpdateProfileForm = () => {
             }
         }
     }
-
-    const closeModal = () => {
-        setIsFormOpen(false);
-    };
+   
 
     return (
         <form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md w-full max-w-xl relative">
@@ -227,9 +224,9 @@ const UpdateProfileForm = () => {
             <div className="mt-6">
                 <button
                     type="submit"
-                    className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-semibold py-2 px-4 rounded-lg"
                 >
-                    Submit
+                    Update
                 </button>
             </div>
         </form>

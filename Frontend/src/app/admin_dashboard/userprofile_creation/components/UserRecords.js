@@ -1,28 +1,28 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 import { getUsers } from '../../../../../../Backend/utils/api';
-import UpdateProfileForm from './UpdateProfileForm'; // Import the UpdateProfileForm
+import UpdateProfileForm from './UpdateProfileForm';
 
 const UserRecords = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [records, setRecords] = useState([]); // State to hold fetched records
-    const [error, setError] = useState(null); // State to hold error message
-    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
-    const [selectedRecord, setSelectedRecord] = useState(null); // State to hold selected record for editing
+    const [records, setRecords] = useState([]);
+    const [error, setError] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedRecord, setSelectedRecord] = useState(null);
 
     const fetchRecords = async () => {
         try {
             const response = await getUsers();
             console.log("All Records Here", response.data.users);
-            
+
             if (response && response.data) {
-                setRecords(response.data.users); // Set fetched records
+                setRecords(response.data.users);
             } else {
                 throw new Error("Invalid response structure");
             }
         } catch (err) {
             console.error('Error fetching records:', err);
-            setError(err.message); // Set error message
+            setError(err.message);
         }
     };
 
@@ -83,7 +83,7 @@ const UserRecords = () => {
     };
 
     return (
-        <div className="p-4 rounded-lg shadow-lg bg-white transition-colors duration-300">
+        <div className="p-4 rounded-lg shadow-lg bg-white dark:bg-gray-800 ">
             <div className="relative mb-4">
                 <input
                     type="text"
@@ -91,28 +91,28 @@ const UserRecords = () => {
                     placeholder="Search by Name, Email, Roll No, Department, or Role"
                     value={searchTerm}
                     onChange={handleSearchChange}
-                    className="border border-gray-300 rounded-lg px-10 py-2 w-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150 bg-white text-gray-800"
+                    className="border border-gray-300 dark:border-gray-600 rounded-lg px-10 py-2 w-full shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200"
                 />
-                <FaSearch className="absolute left-3 top-2.5 text-gray-500" />
+                <FaSearch className="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400" />
             </div>
             {error && <div className="text-red-500">{error}</div>} {/* Display error message if any */}
-            <table className="min-w-full table-auto bg-white">
-                <thead className="bg-gray-200">
+            <table className="min-w-full table-auto bg-white dark:bg-gray-800">
+                <thead className="bg-gray-200 dark:bg-gray-700">
                     <tr>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Profile</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Name</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Email</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Phone</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Department</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Roll No</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Role</th>
-                        <th className="px-6 py-4 text-left font-semibold text-xs">Actions</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Profile</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Name</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Email</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Phone</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Department</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Roll No</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Role</th>
+                        <th className="px-6 py-4 text-left font-semibold text-xs text-gray-800 dark:text-gray-200">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     {filteredRecords.length > 0 ? (
                         filteredRecords.map((record) => (
-                            <tr key={record.id} className={`hover:bg-gray-100 transition duration-150 ${record.role === 'student' ? 'bg-gray-50' : 'bg-white'}`}>
+                            <tr key={record.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${record.role === 'student' ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700'}`}>
                                 <td className="border-t px-6 py-4">
                                     <img
                                         src={record.profilePic || 'default_profile_pic.png'}
@@ -120,22 +120,22 @@ const UserRecords = () => {
                                         className="w-10 h-10 rounded-full"
                                     />
                                 </td>
-                                <td className="border-t px-6 py-4 text-xs">{record.name}</td>
-                                <td className="border-t px-6 py-4 text-xs">{record.email}</td>
-                                <td className="border-t px-6 py-4 text-xs">{record.phoneNumber}</td>
-                                <td className="border-t px-6 py-4 text-xs">{record.department}</td>
-                                <td className="border-t px-6 py-4 text-xs">{record.rollno || '-'}</td>
-                                <td className="border-t px-6 py-4 text-xs">{record.role}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.name}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.email}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.phoneNumber}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.department}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.rollno || '-'}</td>
+                                <td className="border-t px-6 py-4 text-xs text-gray-800 dark:text-gray-200">{record.role}</td>
                                 <td className="border-t px-6 py-4 flex space-x-2">
                                     <button
                                         onClick={() => handleEditRecord(record)}
-                                        className="text-yellow-500 hover:text-yellow-700"
+                                        className="text-yellow-500 hover:text-yellow-700 dark:text-yellow-400 dark:hover:text-yellow-300"
                                     >
                                         <FaEdit />
                                     </button>
                                     <button
                                         onClick={() => handleDeleteRecord(record.id)}
-                                        className="text-red-500 hover:text-red-700"
+                                        className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                     >
                                         <FaTrash />
                                     </button>
@@ -144,7 +144,7 @@ const UserRecords = () => {
                         ))
                     ) : (
                         <tr>
-                            <td colSpan="8" className="border-t px-6 py-4 text-center text-gray-500 text-xs">
+                            <td colSpan="8" className="border-t px-6 py-4 text-center text-gray-500 dark:text-gray-400 text-xs">
                                 No records found
                             </td>
                         </tr>
@@ -154,11 +154,12 @@ const UserRecords = () => {
 
             {/* Modal for UpdateProfileForm */}
             {isModalOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
-                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                <div className="fixed inset-0 flex items-center justify-center z-50">
+                    <div className="fixed inset-0 bg-gray-800 opacity-50"></div> {/* Modal background */}
+                    <div className="rounded-lg p-6 relative z-10 w-full max-w-2xl ">
                         <UpdateProfileForm
-                            record={selectedRecord} // Pass the selected record to the form
-                            onClose={closeModal} // Pass the closeModal function
+                            record={selectedRecord}
+                            closeModal={closeModal} // Pass the closeModal function
                         />
                     </div>
                 </div>
