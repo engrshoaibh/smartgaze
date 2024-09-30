@@ -230,7 +230,7 @@ export default function Classes() {
             setCourse('');
             setCurrentClass('');
           }}>
-            <h3 className="text-lg mb-4 text-gray-800 dark:text-gray-100">Manage Students for {course.courseName}</h3>
+            <h3 className="text-lg mb-4 text-gray-800 dark:text-black">Manage Students for {course.courseName}</h3>
             <input
               type="text"
               placeholder="Search Students by Name or Roll No..."
@@ -279,10 +279,10 @@ export default function Classes() {
 
           {/* Modal for scheduling course */}
           <Modal isOpen={isScheduleModalOpen} onClose={() => setIsScheduleModalOpen(false)}>
-            <h3 className="text-lg mb-4 text-gray-800 dark:text-gray-100">Schedule Course</h3>
+            <h3 className="text-lg mb-4 text-gray-800 dark:text-black">Schedule Course</h3>
 
             <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300">Select Day:</label>
+              <label className="block text-gray-700 dark:text-black">Select Day:</label>
               <select
                 className="border border-gray-300 dark:border-gray-600 p-2 rounded w-full dark:bg-gray-800 dark:text-gray-100"
                 value={selectedDay}
@@ -299,7 +299,7 @@ export default function Classes() {
             </div>
 
             <div className="mb-4">
-              <label className="block text-gray-700 dark:text-gray-300">Select Time Slot:</label>
+              <label className="block text-gray-700 dark:text-black">Select Time Slot:</label>
               <select
                 className="border border-gray-300 dark:border-gray-600 p-2 rounded w-full dark:bg-gray-800 dark:text-gray-100"
                 value={selectedTimeSlot}

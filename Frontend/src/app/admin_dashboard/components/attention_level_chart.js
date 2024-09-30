@@ -4,7 +4,7 @@ import { Pie } from 'react-chartjs-2';
 
 const AttentionLevelChart = () => {
   const data = {
-    labels: ['High', 'Medium', 'Low'],
+    labels: ['Focused', 'Unfocused', 'Drowsy'],
     datasets: [
       {
         data: [50, 30, 20],

@@ -6,8 +6,6 @@ import {
   FaUserCheck,
   FaSmile,
   FaBrain,
-  FaUserPlus,
-  FaCogs,
   FaChevronRight,
   FaChevronLeft,
   FaChalkboardTeacher
@@ -42,7 +40,7 @@ export default function Sidebar() {
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-1 text-gray-600 dark:text-gray-300 focus:outline-none absolute -right-3 top-3 bg-gray-200 dark:bg-gray-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="p-1 text-gray-600 dark:text-black focus:outline-none absolute -right-3 top-3 bg-gray-200 dark:bg-gray-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
         >
           {isExpanded ? <FaChevronLeft className="text-sm" /> : <FaChevronRight className="text-sm" />}
         </button>
@@ -55,7 +53,8 @@ export default function Sidebar() {
             { name: 'Attendance Dashboard', icon: FaUserCheck, href: '/teacher_dashboard/attendance_dashboard' },
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/teacher_dashboard/emotionalstate_dashboard' },
             { name: 'Attention Level Dashboard', icon: FaBrain, href: '/teacher_dashboard/attentionlevel_dashboard' },
-            { name: 'Class Management', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' }
+            { name: 'Class Management', icon: FaChalkboardTeacher, href: '/teacher_dashboard/classes' },
+            { name: 'Customizations', icon: FaChalkboardTeacher, href: '/teacher_dashboard/customizations' }
           ].map((item) => (
             <li key={item.name}>
               <a
