@@ -153,8 +153,6 @@ export default function MainDashboard() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitted(true);
-
-
     if (!profileImage ) {
       setImageError(true);
     }

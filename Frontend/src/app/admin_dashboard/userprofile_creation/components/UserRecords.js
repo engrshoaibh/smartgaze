@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 import { getUsers } from '../../../../../../Backend/utils/api';
+import UpdateProfileForm from './UpdateProfileForm'; // Import the UpdateProfileForm
 
 const UserRecords = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [records, setRecords] = useState([]); // State to hold fetched records
     const [error, setError] = useState(null); // State to hold error message
+    const [isModalOpen, setIsModalOpen] = useState(false); // State to control modal visibility
+    const [selectedRecord, setSelectedRecord] = useState(null); // State to hold selected record for editing
 
     const fetchRecords = async () => {
         try {
@@ -32,8 +35,25 @@ const UserRecords = () => {
         setSearchTerm(e.target.value);
     };
 
+    // Fallback dummy data
+    const dummyRecord = [
+        {
+            id: '1',
+            name: 'John Doe',
+            email: 'john.doe@example.com',
+            phoneNumber: '1234567890',
+            department: 'Engineering',
+            rollno: '101',
+            role: 'student',
+            profilePic: 'default_profile_pic.png',
+        },
+    ];
+
+    // If no records fetched, use dummy data
+    const recordsToDisplay = records.length > 0 ? records : dummyRecord;
+
     // Filter records based on search term
-    const filteredRecords = records.filter(record => {
+    const filteredRecords = recordsToDisplay.filter(record => {
         const { name, email, department, rollno, role } = record;
         return (
             name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -44,14 +64,22 @@ const UserRecords = () => {
         );
     });
 
+    // Handle editing the record
     const handleEditRecord = (record) => {
-        console.log("Edit", record);
-        // Implement edit logic here
+        setSelectedRecord(record); // Set the record to be edited
+        setIsModalOpen(true); // Open the modal
     };
 
+    // Handle deleting the record
     const handleDeleteRecord = (id) => {
         console.log(`Delete record with id: ${id}`);
         // Implement delete logic here
+    };
+
+    // Function to close the modal
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setSelectedRecord(null);
     };
 
     return (
@@ -123,6 +151,18 @@ const UserRecords = () => {
                     )}
                 </tbody>
             </table>
+
+            {/* Modal for UpdateProfileForm */}
+            {isModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                    <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-lg">
+                        <UpdateProfileForm
+                            record={selectedRecord} // Pass the selected record to the form
+                            onClose={closeModal} // Pass the closeModal function
+                        />
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
