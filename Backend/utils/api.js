@@ -287,10 +287,10 @@ const getCourseSchedule = async (classId, courseCode) => {
 
 const getDashboardStats = async () => {
   try {
-    const token = localStorage.getItem('token'); // Use token for authentication if needed
+    const token = localStorage.getItem('token'); 
     const response = await axios.get(`${API_URL}/admin/dashboardStats`, {
       headers: {
-        Authorization: `Bearer ${token}`,  // Pass the token if your backend uses authentication
+        Authorization: `Bearer ${token}`,  
       },
     });
     return response.data;
@@ -300,5 +300,42 @@ const getDashboardStats = async () => {
   }
 };
 
+const updateUser = async (data,userId) => {
+  try {
+    const token = localStorage.getItem('token'); 
+    const response = await axios.put(`${API_URL}/admin/users/${userId}`, 
+      {
+      data
+      },
+      {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    console.log('Update User Details:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error updating users data:', error);
+    throw error;
+  }
+};
+const deleteUser = async (userId) => {
+  try {
+    const token = localStorage.getItem('token'); 
+    const response = await axios.delete(`${API_URL}/admin/users/${userId}`, 
+      
+      {
+      headers: {
+        Authorization: `Bearer ${token}` 
+      }
+    });
+   
+    return response.status;
+  } catch (error) {
+    console.error('Error deleting users data:', error);
+    throw error;
+  }
+};
 
-export {getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};
+
+export {deleteUser,updateUser,getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};

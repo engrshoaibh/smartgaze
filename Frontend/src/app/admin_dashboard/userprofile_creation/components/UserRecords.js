@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
-import { getUsers } from '../../../../../../Backend/utils/api';
+import { deleteUser, getUsers } from '../../../../../../Backend/utils/api';
 import UpdateProfileForm from './UpdateProfileForm';
 
 const UserRecords = () => {
@@ -9,6 +9,8 @@ const UserRecords = () => {
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRecord, setSelectedRecord] = useState(null);
+    const [currentPage, setCurrentPage] = useState(1);
+    const recordsPerPage = 3;
 
     const fetchRecords = async () => {
         try {
@@ -28,58 +30,64 @@ const UserRecords = () => {
 
     useEffect(() => {
         fetchRecords();
-    }, []);
+    }, [isModalOpen]);
 
     // Function to handle search input change
     const handleSearchChange = (e) => {
         setSearchTerm(e.target.value);
+        setCurrentPage(1); // Reset to the first page on new search
     };
 
-    // Fallback dummy data
-    const dummyRecord = [
-        {
-            id: '1',
-            name: 'John Doe',
-            email: 'john.doe@example.com',
-            phoneNumber: '1234567890',
-            department: 'Engineering',
-            rollno: '101',
-            role: 'student',
-            profilePic: 'default_profile_pic.png',
-        },
-    ];
-
-    // If no records fetched, use dummy data
-    const recordsToDisplay = records.length > 0 ? records : dummyRecord;
-
-    // Filter records based on search term
-    const filteredRecords = recordsToDisplay.filter(record => {
+    const filteredRecords = records.filter(record => {
         const { name, email, department, rollno, role } = record;
         return (
             name.toLowerCase().includes(searchTerm.toLowerCase()) ||
             email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            (rollno && rollno.includes(searchTerm)) ||  // Check for roll number only for students
+            (rollno && rollno.includes(searchTerm)) ||
             department?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            role.toLowerCase().includes(searchTerm.toLowerCase()) // Check for role
+            role.toLowerCase().includes(searchTerm.toLowerCase())
         );
     });
 
-    // Handle editing the record
+    const totalPages = Math.ceil(filteredRecords.length / recordsPerPage);
+    const paginatedRecords = filteredRecords.slice(
+        (currentPage - 1) * recordsPerPage,
+        currentPage * recordsPerPage
+    );
+
     const handleEditRecord = (record) => {
-        setSelectedRecord(record); // Set the record to be edited
-        setIsModalOpen(true); // Open the modal
+        setSelectedRecord(record);
+        setIsModalOpen(true);
     };
 
-    // Handle deleting the record
-    const handleDeleteRecord = (id) => {
-        console.log(`Delete record with id: ${id}`);
-        // Implement delete logic here
+    const handleDeleteRecord = async (id) => {
+        // Optimistically remove the record from the UI
+        const updatedRecords = records.filter(record => record._id !== id);
+        setRecords(updatedRecords); 
+        const response = await deleteUser(id);
+        console.log(response);
+        
+        if (response == "204") {
+            alert("Record Deleted Successfully 😲");
+            // Optionally, refetch records to ensure state is accurate
+            fetchRecords(); 
+        } else {
+            // If deletion fails, add the record back to the UI
+            setRecords(records); // Restore original records
+            alert("Failed to delete record.");
+        }
     };
 
-    // Function to close the modal
     const closeModal = () => {
         setIsModalOpen(false);
         setSelectedRecord(null);
+        fetchRecords(); // Refresh records after closing modal
+    };
+
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
     };
 
     return (
@@ -95,7 +103,7 @@ const UserRecords = () => {
                 />
                 <FaSearch className="absolute left-3 top-2.5 text-gray-500 dark:text-gray-400" />
             </div>
-            {error && <div className="text-red-500">{error}</div>} {/* Display error message if any */}
+            {error && <div className="text-red-500">{error}</div>}
             <table className="min-w-full table-auto bg-white dark:bg-gray-800">
                 <thead className="bg-gray-200 dark:bg-gray-700">
                     <tr>
@@ -110,8 +118,8 @@ const UserRecords = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {filteredRecords.length > 0 ? (
-                        filteredRecords.map((record) => (
+                    {paginatedRecords.length > 0 ? (
+                        paginatedRecords.map((record) => (
                             <tr key={record.id} className={`hover:bg-gray-100 dark:hover:bg-gray-700 ${record.role === 'student' ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-700'}`}>
                                 <td className="border-t px-6 py-4">
                                     <img
@@ -134,7 +142,7 @@ const UserRecords = () => {
                                         <FaEdit />
                                     </button>
                                     <button
-                                        onClick={() => handleDeleteRecord(record.id)}
+                                        onClick={() => handleDeleteRecord(record._id)}
                                         className="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"
                                     >
                                         <FaTrash />
@@ -151,15 +159,45 @@ const UserRecords = () => {
                     )}
                 </tbody>
             </table>
-
-            {/* Modal for UpdateProfileForm */}
+            
+            {/* Pagination Controls */}
+           
+            {paginatedRecords.length > 0 ? (
+                 <div className="flex justify-center space-x-2 mt-4">
+                 <button
+                     className={`px-3 py-1 border ${currentPage === 1 ? 'text-gray-400' : 'text-blue-600'}`}
+                     onClick={() => goToPage(currentPage - 1)}
+                     disabled={currentPage === 1}
+                 >
+                     Previous
+                 </button>
+                 {Array.from({ length: totalPages }, (_, i) => (
+                     <button
+                         key={i}
+                         className={`px-3 py-1 border ${currentPage === i + 1 ? 'bg-blue-600 text-white' : 'text-blue-600'}`}
+                         onClick={() => goToPage(i + 1)}
+                     >
+                         {i + 1}
+                     </button>
+                 ))}
+                 <button
+                     className={`px-3 py-1 border ${currentPage === totalPages ? 'text-gray-400' : 'text-blue-600'}`}
+                     onClick={() => goToPage(currentPage + 1)}
+                     disabled={currentPage === totalPages}
+                 >
+                     Next
+                 </button>
+             </div>
+            ): (
+                null
+            )}
             {isModalOpen && (
                 <div className="fixed inset-0 flex items-center justify-center z-50">
-                    <div className="fixed inset-0 bg-gray-800 opacity-50"></div> {/* Modal background */}
+                    <div className="fixed inset-0 bg-gray-800 opacity-50"></div>
                     <div className="rounded-lg p-6 relative z-10 w-full max-w-2xl ">
                         <UpdateProfileForm
                             record={selectedRecord}
-                            closeModal={closeModal} // Pass the closeModal function
+                            closeModal={closeModal} 
                         />
                     </div>
                 </div>

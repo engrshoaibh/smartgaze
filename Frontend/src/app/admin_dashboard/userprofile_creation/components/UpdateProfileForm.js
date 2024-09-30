@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
 import preDefinedData from './preDefinedData';
+import { updateUser } from '../../../../../../Backend/utils/api';
 
 const UpdateProfileForm = ({record,closeModal}) => {
     const { batches, departments, departmentClasses } = preDefinedData;
@@ -8,23 +9,23 @@ const UpdateProfileForm = ({record,closeModal}) => {
     const [classes, setClasses] = useState([]);
     const [sections] = useState(['Select Section', 'A', 'B']);
     const [text, setText] = useState("Edit Student Profile");
-    const [role, setRole] = useState('student');
+    const [role, setRole] = useState(record.role);
     const [isSubmitted, setIsSubmitted] = useState(false);
     const [isFormOpen, setIsFormOpen] = useState(false); // Toggle for form
-    const [profileImage, setProfileImage] = useState(null);
+    const [profileImage, setProfileImage] = useState(record.profilePic);
     const [errors, setErrors] = useState({}); // State to handle form errors
 
     const [formValues, setFormValues] = useState({
-        name: '',
-        email: '',
-        phoneNumber: '',
-        classInfo: '',
-        section: '',
-        batch: '',
-        department: ''
+        name: record.name,
+        email: record.email,
+        phoneNumber: record.phoneNumber,
+        classInfo: record.classInfo,
+        section: record.section,
+        batch: record.batch,
+        department: record?.department
     });
 
-    // Watch for changes in department selection to update class options
+
     useEffect(() => {
         if (formValues.department && formValues.department !== '') {
             setClasses(departmentClasses[formValues.department] || [{ value: '', label: 'Select Class' }]);
@@ -55,22 +56,40 @@ const UpdateProfileForm = ({record,closeModal}) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitted(true);
+// Handle form submission
+const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsSubmitted(true);
 
-        if (validateForm()) {
-            const formData = { ...formValues, role, profileImage };
+    // Only submit if the form is valid
+    if (validateForm()) {
+        // Prepare formData based on role
+        const formData = {
+            name: formValues.name,
+            email: formValues.email,
+            phoneNumber: formValues.phoneNumber,
+            department: formValues.department,
+            role,
+            profileImage,
+        };
 
-            // Submit the form (e.g., send formData to backend)
-            // const response = await update(formData);
+        // Add student-specific fields only if the role is student
+        if (role === 'student') {
+            formData.classInfo = formValues.classInfo;
+            formData.section = formValues.section;
+            formData.batch = formValues.batch;
+        }
 
-            // Example handling after form submission
-            if (response?.status === "success") {
-                setIsFormOpen(false);
-            }
+        console.log("Updated Data:", formData,record._id);
+                // Submit the form (e.g., send formData to backend)
+        const response = await updateUser(formData,record._id);
+
+        // Example handling after form submission
+        if (response?.status === "success") {
+            closeModal(); // Close modal after successful submission
         }
     }
+};
    
 
     return (
