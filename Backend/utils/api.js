@@ -3,15 +3,15 @@ import axios from 'axios';
 const API_URL = 'http://localhost:3001/api/v1';
 
 const login = async (data) => {
-  console.log("Data Received",data);
-  
+  console.log("Data Received", data);
+
   const response = await axios.post(`${API_URL}/auth/login`, data);
   return response.data;
 };
 
 const signup = async (userData) => {
   try {
-    console.log("Create Profile",userData)
+    console.log("Create Profile", userData)
     const response = await axios.post(`${API_URL}/auth/signup`, userData, {
       headers: {
         'Content-Type': 'application/json',
@@ -45,7 +45,7 @@ const forgotPassword = async (email) => {
   }
 };
 
-const createClass = async (classData,token) => {
+const createClass = async (classData, token) => {
   try {
     const response = await axios.post(`${API_URL}/class/create`, classData, {
       headers: {
@@ -63,19 +63,32 @@ const createClass = async (classData,token) => {
     }
   } catch (error) {
     console.error('Error submitting the form:', error);
-    
+
   }
 };
+const getClasses = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`${API_URL}/class/getClasses`, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error submitting the form:', error);
+
+  }
+}
 
 const getTeachers = async () => {
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/admin/users/getTeachers`, {
       headers: {
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       }
     });
-    console.log('Teachers data:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching teachers data:', error);
@@ -85,10 +98,10 @@ const getTeachers = async () => {
 
 const getStudents = async () => {
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/teacher/users/getStudents`, {
       headers: {
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       }
     });
     console.log('Students data:', response.data);
@@ -101,10 +114,10 @@ const getStudents = async () => {
 
 const getUsers = async () => {
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/admin/users/getUsers`, {
       headers: {
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       }
     });
     console.log('All Users data:', response.data);
@@ -114,18 +127,18 @@ const getUsers = async () => {
     throw error;
   }
 };
-const getStudentsByClass  = async (className) => {
+const getStudentsByClass = async (className) => {
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await axios.post(`${API_URL}/teacher/users/getStudentsByClass`,
-    {
-      className
-    },    
-    {
-      headers: {
-        Authorization: `Bearer ${token}` 
-      }
-    });
+      {
+        className
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
     console.log('Students data:', response.data);
     return response.data;
   } catch (error) {
@@ -138,10 +151,10 @@ const getAssignedClasses = async () => {
     const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/teacher/my-classes`, {
       headers: {
-        Authorization: `Bearer ${token}` 
+        Authorization: `Bearer ${token}`
       }
     });
-    console.log(response.data.data.classes); 
+    console.log(response.data.data.classes);
     return response.data;
   } catch (error) {
     console.error('Error fetching classes:', error.response?.data || error.message);
@@ -152,15 +165,15 @@ const addStudentToCourse = async (classId, courseCode, studentId) => {
   try {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
     const response = await axios.post(
-      `${API_URL}/class/${classId}/courses/${courseCode}/students`, 
-      { studentId }, 
+      `${API_URL}/class/${classId}/courses/${courseCode}/students`,
+      { studentId },
       {
         headers: {
           Authorization: `Bearer ${token}` // Include the authorization token in the headers
         }
       }
     );
-    
+
     console.log(response.data.message); // Log success message
     return response.data; // Return the response data
   } catch (error) {
@@ -181,8 +194,8 @@ const customizations = async (threshold, imageInterval) => {
     // Log payload for debugging
     console.log({ threshold, imageInterval });
 
-    const response = await axios.post(`${API_URL}/admin/users/customizations`, 
-      { threshold, imageInterval }, 
+    const response = await axios.post(`${API_URL}/admin/users/customizations`,
+      { threshold, imageInterval },
       {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -199,9 +212,9 @@ const customizations = async (threshold, imageInterval) => {
   } catch (error) {
     if (error.response) {
       // Log server response
-      console.error('API Response Error:', error.response.data);  
+      console.error('API Response Error:', error.response.data);
     } else {
-      console.error('API Error:', error.message);  
+      console.error('API Error:', error.message);
     }
     return 'Error occurred. Please try again.';
   }
@@ -210,7 +223,7 @@ const getCustomizations = async () => {
   try {
     const token = localStorage.getItem('token');
 
-    const response = await axios.get(`${API_URL}/admin/users/getCustomizations`, 
+    const response = await axios.get(`${API_URL}/admin/users/getCustomizations`,
       {
         headers: {
           Authorization: `Bearer ${token}`
@@ -225,9 +238,9 @@ const getCustomizations = async () => {
     }
   } catch (error) {
     if (error.response) {
-      console.error('API Response Error:', error.response.data);  
+      console.error('API Response Error:', error.response.data);
     } else {
-      console.error('API Error:', error.message);  
+      console.error('API Error:', error.message);
     }
     return 'Error occurred. Please try again.';
   }
@@ -248,10 +261,10 @@ const removeStudentFromCourse = async (classId, courseCode, studentId) => {
     console.error('Error removing student from course:', error.response?.data || error.message);
   }
 };
-const createOrUpdateSchedule = async (classId, courseCode,courseName, day, timeSlot) => {
+const createOrUpdateSchedule = async (classId, courseCode, courseName, day, timeSlot) => {
   try {
     const token = localStorage.getItem('token');
-    
+
     const response = await axios.post(`${API_URL}/class/${classId}/schedule`, {
       courseCode,
       courseName,
@@ -287,10 +300,10 @@ const getCourseSchedule = async (classId, courseCode) => {
 
 const getDashboardStats = async () => {
   try {
-    const token = localStorage.getItem('token'); 
+    const token = localStorage.getItem('token');
     const response = await axios.get(`${API_URL}/admin/dashboardStats`, {
       headers: {
-        Authorization: `Bearer ${token}`,  
+        Authorization: `Bearer ${token}`,
       },
     });
     return response.data;
@@ -300,19 +313,19 @@ const getDashboardStats = async () => {
   }
 };
 
-const updateUser = async (data,userId) => {
+const updateUser = async (data, userId) => {
   try {
-    console.log("Updated Received:", data,userId);
-    const token = localStorage.getItem('token'); 
-    const response = await axios.put(`${API_URL}/admin/users/${userId}`, 
+    console.log("Updated Received:", data, userId);
+    const token = localStorage.getItem('token');
+    const response = await axios.put(`${API_URL}/admin/users/${userId}`,
       {
-      data
+        data
       },
       {
-      headers: {
-        Authorization: `Bearer ${token}` 
-      }
-    });
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
     console.log('Update User Details:', response.data);
     return response.data;
   } catch (error) {
@@ -322,15 +335,15 @@ const updateUser = async (data,userId) => {
 };
 const deleteUser = async (userId) => {
   try {
-    const token = localStorage.getItem('token'); 
-    const response = await axios.delete(`${API_URL}/admin/users/${userId}`, 
-      
+    const token = localStorage.getItem('token');
+    const response = await axios.delete(`${API_URL}/admin/users/${userId}`,
+
       {
-      headers: {
-        Authorization: `Bearer ${token}` 
-      }
-    });
-   
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
     return response.status;
   } catch (error) {
     console.error('Error deleting users data:', error);
@@ -339,4 +352,110 @@ const deleteUser = async (userId) => {
 };
 
 
-export {deleteUser,updateUser,getUsers, getCourseSchedule,removeStudentFromCourse,getStudentsByClass,login,createOrUpdateSchedule, signup,forgotPassword,createClass,getTeachers,getStudents, getAssignedClasses,addStudentToCourse,customizations,getCustomizations, getDashboardStats};
+//Attendance APIs
+
+async function markAttendance(classId, attendanceData) {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.post(`${API_URL}/attendance/mark/class/${classId}`,
+      attendanceData,
+      {
+        headers: {
+          Authorization: `Bearer ${token}` // Assuming you're using JWT for authentication
+        }
+      }
+    );
+    console.log('Attendance marked:', response.data);
+  } catch (error) {
+    console.error('Error marking attendance:', error.response?.data || error.message);
+  }
+}
+
+async function getClassAttendance(classId) {
+  try {
+
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/class/${classId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    console.log('Class attendance:', response.data);
+  } catch (error) {
+    console.error('Error fetching class attendance:', error.response?.data || error.message);
+  }
+}
+
+async function getAttendanceByStudent(studentId) {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/student/${studentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    console.log('Student attendance:', response.data);
+  } catch (error) {
+    console.error('Error fetching student attendance:', error.response?.data || error.message);
+  }
+}
+
+async function getAttendanceByClassAndDate(classId, date) {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/class/${classId}/date/${date}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    console.log('Attendance for class on date:', response.data);
+  } catch (error) {
+    console.error('Error fetching attendance by class and date:', error.response?.data || error.message);
+  }
+}
+
+async function getStudentAttendanceSummary(studentId) {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/student/${studentId}/summary`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    console.log('Student attendance summary:', response.data);
+  } catch (error) {
+    console.error('Error fetching student attendance summary:', error.response?.data || error.message);
+  }
+}
+async function getAttendance() {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/getAttendance`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student attendance summary:', error.response?.data || error.message);
+  }
+}
+
+
+
+export {getAttendance,getClasses, getAttendanceByStudent, getAttendanceByClassAndDate, getStudentAttendanceSummary, getClassAttendance, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };

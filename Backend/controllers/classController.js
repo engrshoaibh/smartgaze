@@ -15,13 +15,13 @@ exports.createClass = async (req, res) => {
 
 exports.getClassDetails = async (req, res) => {
   try {
-    const classDetails = await Class.findById(req.params.id)
-      .populate('teacher students');
-    res.status(200).json({ status: 'success', data: { class: classDetails } });
+    const classDetails = await Class.find(); // Fetches all class details from the database
+    res.status(200).json({ status: 'success', data: { class: classDetails } }); // Sends a success response with the class data
   } catch (err) {
-    res.status(404).json({ status: 'fail', message: 'Class not found' });
+    res.status(404).json({ status: 'fail', message: 'Class not found' }); // Handles errors, returning a fail response
   }
 };
+
 
 // Add a student to a course in a class
 exports.addStudentToCourse = async (req, res) => {

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Class routes
 router.post('/create', authMiddleware.protect, classController.createClass);  // Create class
-router.get('/:id', authMiddleware.protect, classController.getClassDetails);  // Get class details
+router.get('/getClasses', authMiddleware.protect, classController.getClassDetails);  // Get class details
 
 // Schedule routes
 router.post('/:id/schedule', authMiddleware.protect, classController.createOrUpdateSchedule);  // Create or update schedule

@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
@@ -8,9 +9,21 @@ const userSchema = new mongoose.Schema({
   password: { type: String, required: true },
   role: { type: String, enum: ['admin', 'teacher', 'student'], required: true },
   profilePic: String,  
-  
-  // New field for Roll Number
-  rollno: { type: String, unique: true },  // Unique Roll Number
+
+  // Conditional Roll Number: Only required for students
+  rollno: {
+    type: String,
+    validate: {
+      validator: function (value) {
+        // Validate rollno only for students
+        if (this.role === 'student' && !value) {
+          return false;  // If role is student, rollno must be provided
+        }
+        return true;
+      },
+      message: 'Roll number is required for students.'
+    }
+  },
   
   // Student-specific fields
   class: { type: String },  
@@ -19,16 +32,25 @@ const userSchema = new mongoose.Schema({
   
   // Teacher-specific fields
   department: { type: String }, 
-  
-  // Reference to Class Schema
-  classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
+   // Reference to Class Schema
+   classes: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Class' }],
 });
 
+// Create a partial index on rollno that enforces uniqueness only when rollno is not null
+userSchema.index({ rollno: 1 }, { unique: true, partialFilterExpression: { rollno: { $exists: true, $ne: null } } });
 
-// Encrypt password before saving
+// Combined pre('save') hook to handle both password encryption and removing rollno for teachers
 userSchema.pre('save', async function (next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
+  // Remove rollno if the role is 'teacher'
+  if (this.role === 'teacher') {
+    this.rollno = undefined;
+  }
+
+  // Only hash the password if it has been modified (or is new)
+  if (this.isModified('password')) {
+    this.password = await bcrypt.hash(this.password, 12);
+  }
+
   next();
 });
 
@@ -38,3 +60,8 @@ userSchema.methods.correctPassword = async function (candidatePassword, userPass
 };
 
 module.exports = mongoose.model('User', userSchema);
+
+ 
+
+
+

@@ -64,10 +64,10 @@ export default function Classes() {
   const fetchSchedules = async (classId, courseCode) => {
     
     const response = await getCourseSchedule(classId, courseCode);
-    console.log(response[0]);
     
-    setSelectedDay(response[0].day);
-    setSelectedTimeSlot(response[0].timeSlot)
+    
+    setSelectedDay(response[0]?.day);
+    setSelectedTimeSlot(response[0]?.timeSlot)
   }
 
   const handleManageStudents = (classItem, course) => {

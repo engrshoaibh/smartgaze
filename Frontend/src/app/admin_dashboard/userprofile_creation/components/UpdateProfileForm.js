@@ -83,7 +83,7 @@ const handleSubmit = async (e) => {
                
         const response = await updateUser(formData,record._id);
         onUpdateRecord(response.data);
-        // Example handling after form submission
+ 
         if (response?.status === "success") {
             closeModal(); // Close modal after successful submission
         }

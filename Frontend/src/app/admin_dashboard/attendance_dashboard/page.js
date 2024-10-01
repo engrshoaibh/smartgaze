@@ -1,27 +1,18 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Sidebar from '../components/side_nav';
 import Header from '../../components/header';
-import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import jsPDF from 'jspdf';
 import 'react-datepicker/dist/react-datepicker.css';
 import DatePicker from 'react-datepicker';
 import { CSVLink } from 'react-csv';
-
-//make some chnages
-const attendanceRecords = [
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '09:00 AM', present: 28, absent: 2 },
-  { class: 'Class A', teacher: 'Mr. Smith', date: '2023-09-01', time: '01:00 PM', present: 26, absent: 4 },
-  { class: 'Class B', teacher: 'Mr. Smith', date: '2023-09-02', time: '09:00 AM', present: 27, absent: 3 },
-  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '09:00 AM', present: 29, absent: 1 },
-  { class: 'Class A', teacher: 'Ms. Johnson', date: '2023-09-03', time: '01:00 PM', present: 30, absent: 0 },
-  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '09:00 AM', present: 26, absent: 4 },
-  { class: 'Class C', teacher: 'Ms. Johnson', date: '2023-09-04', time: '01:00 PM', present: 24, absent: 6 },
-];
+import AttendanceChart from './components/AttendanceChart';
+import { getTeachers, getClasses, getAttendance } from '../../../../../Backend/utils/api';
 
 const AttendanceDashboard = () => {
+  const [attendanceRecords, setAttendanceRecords] = useState([]);
   const [attendanceData, setAttendanceData] = useState({ labels: [], datasets: [] });
   const [loading, setLoading] = useState(false);
   const [classes, setClasses] = useState([]);
@@ -37,41 +28,51 @@ const AttendanceDashboard = () => {
   const [selectedGraphClass, setSelectedGraphClass] = useState('');
   const [selectedGraphTeacher, setSelectedGraphTeacher] = useState('');
 
-
-  useEffect(() => {
-    const classList = [...new Set(attendanceRecords.map((record) => record.class))];
-    setClasses(classList);
-    const teacherList = [...new Set(attendanceRecords.map((record) => record.teacher))];
+  const fetchTeachers = async () => {
+    const response = await getTeachers();
+    const teacherList = response.data.teachers.map(record => ({
+      id: record._id, 
+      name: record.name,
+    }));
     setTeachers(teacherList);
-    fetchAttendanceData();
-  }, []);
+  };
 
-  const fetchAttendanceData = async () => {
+  const fetchClasses = async () => {
+    try {
+      const response = await getClasses();
+      const classList = [...new Set(response.data.class.map(record => record.name))];
+      setClasses(classList);
+    } catch (error) {
+      console.error("Error fetching classes:", error);
+    }
+  };
+
+  const fetchAttendance = async () => {
     setLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      setFilteredRecords(attendanceRecords); // Initial full records for both
-      setGraphFilteredRecords(attendanceRecords);
-      prepareChartData(attendanceRecords);
-      setLoading(false);
+      const apiResponse = await getAttendance();
+      const Records = convertAttendanceData(apiResponse);
+      setAttendanceRecords(Records);
+      setFilteredRecords(Records);
+      setGraphFilteredRecords(Records);
+      prepareChartData(Records);
     } catch (error) {
       console.error('Error fetching data:', error);
+    } finally {
       setLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchTeachers();
+    fetchClasses();
+    fetchAttendance();
+  }, []);
+
   const prepareChartData = (records) => {
-    const dateLabels = [...new Set(records.map((record) => record.date))].sort();
-    const presentData = dateLabels.map((date) => {
-      return records
-        .filter((record) => record.date === date)
-        .reduce((sum, record) => sum + record.present, 0);
-    });
-    const absentData = dateLabels.map((date) => {
-      return records
-        .filter((record) => record.date === date)
-        .reduce((sum, record) => sum + record.absent, 0);
-    });
+    const dateLabels = [...new Set(records.map(record => record.date))].sort();
+    const presentData = dateLabels.map(date => records.filter(record => record.date === date).reduce((sum, record) => sum + record.present, 0));
+    const absentData = dateLabels.map(date => records.filter(record => record.date === date).reduce((sum, record) => sum + record.absent, 0));
 
     setAttendanceData({
       labels: dateLabels,
@@ -94,24 +95,36 @@ const AttendanceDashboard = () => {
     });
   };
 
+  const filterRecords = useCallback(() => {
+    let records = [...attendanceRecords];
+  
+    // Only filter by class if a specific class is selected
+    if (selectedClass ) {
+      records = records.filter(record => record.class === selectedClass);
+    }
+  
+    // Only filter by teacher if a specific teacher is selected
+    if (selectedTeacher) {
+      records = records.filter(record => record.teacher === selectedTeacher);
+    }
+  
+    // Only filter by start date if a start date is provided
+    if (startDate) {
+      records = records.filter(record => new Date(record.date) >= startDate);
+    }
+  
+    // Only filter by end date if an end date is provided
+    if (endDate) {
+      records = records.filter(record => new Date(record.date) <= endDate);
+    }
+  
+    // Set the filtered records
+    setFilteredRecords(records);
+  }, [attendanceRecords, selectedClass, selectedTeacher, startDate, endDate]);
+  
   const handleFilterChange = () => {
     setLoading(true);
-    let records = [...attendanceRecords];
-
-    if (selectedClass) {
-      records = records.filter((record) => record.class === selectedClass);
-    }
-    if (selectedTeacher) {
-      records = records.filter((record) => record.teacher === selectedTeacher);
-    }
-    if (startDate) {
-      records = records.filter((record) => new Date(record.date) >= startDate);
-    }
-    if (endDate) {
-      records = records.filter((record) => new Date(record.date) <= endDate);
-    }
-
-    setFilteredRecords(records);
+    filterRecords();
     setLoading(false);
   };
 
@@ -119,14 +132,14 @@ const AttendanceDashboard = () => {
     let records = [...attendanceRecords];
 
     if (selectedGraphClass) {
-      records = records.filter((record) => record.class === selectedGraphClass);
+      records = records.filter(record => record.class === selectedGraphClass);
     }
     if (selectedGraphTeacher) {
-      records = records.filter((record) => record.teacher === selectedGraphTeacher);
+      records = records.filter(record => record.teacher === selectedGraphTeacher);
     }
 
     setGraphFilteredRecords(records);
-    prepareChartData(records); // Update chart data based on graph filtered records
+    prepareChartData(records);
   };
 
   const onGraphClassChange = (e) => {
@@ -140,9 +153,7 @@ const AttendanceDashboard = () => {
   };
 
   const handleReportClick = (className, date) => {
-    const recordsForReport = filteredRecords.filter(
-      (record) => record.class === className && record.date === date
-    );
+    const recordsForReport = filteredRecords.filter(record => record.class === className && record.date === date);
     setSelectedReport(recordsForReport);
     setModalIsOpen(true);
   };
@@ -160,6 +171,18 @@ const AttendanceDashboard = () => {
     doc.save(`attendance_report_${records[0].class}_${records[0].date}.pdf`);
   };
 
+  const convertAttendanceData = (data) => {
+    return data.map(record => ({
+      class: record.class_id.name,
+      teacher: record.teacher_id.name,
+      teacher_id: record.teacher_id._id,
+      date: new Date(record.class_id.createdAt).toISOString().split('T')[0],
+      time: record.time,
+      present: record.class_id.courses[0].students.length,
+      absent: record.studentsAbsent.length,
+    }));
+  };
+
   const tableHeaders = ['Time', 'Class', 'Teacher', 'Present', 'Absent'];
 
   return (
@@ -170,44 +193,16 @@ const AttendanceDashboard = () => {
 
         <div className="flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 mt-20 " style={{ height: '450px' }}>
           {/* Chart Section */}
-          <div className="flex-1 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
-            {loading ? (
-              <p className="text-black dark:text-white">Loading data...</p>
-            ) : (
-              <div>
-                {/* Graph Filters */}
-                <div className="flex justify-end mb-4">
-                  <select
-                    value={selectedGraphClass}
-                    onChange={onGraphClassChange}
-                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1"
-                  >
-                    <option value="">All Classes</option>
-                    {classes.map((className, idx) => (
-                      <option key={idx} value={className}>
-                        {className}
-                      </option>
-                    ))}
-                  </select>
-
-                  <select
-                    value={selectedGraphTeacher}
-                    onChange={onGraphTeacherChange}
-                    className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 ml-2"
-                  >
-                    <option value="">All Teachers</option>
-                    {teachers.map((teacher, idx) => (
-                      <option key={idx} value={teacher}>
-                        {teacher}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <Bar data={attendanceData} options={{ maintainAspectRatio: true }} />
-              </div>
-            )}
-          </div>
+          <AttendanceChart
+            loading={loading}
+            attendanceData={attendanceData}
+            classes={classes}
+            teachers={teachers}
+            selectedGraphClass={selectedGraphClass}
+            selectedGraphTeacher={selectedGraphTeacher}
+            onGraphClassChange={onGraphClassChange}
+            onGraphTeacherChange={onGraphTeacherChange}
+          />
 
           {/* Filters Section */}
           <div className="w-full lg:w-1/3 p-4 rounded-lg shadow-lg dark:bg-gray-800 bg-white text-black dark:text-white">
@@ -235,17 +230,18 @@ const AttendanceDashboard = () => {
                   value={selectedTeacher}
                   onChange={(e) => {
                     setSelectedTeacher(e.target.value);
-                    handleFilterChange();  // Call handleFilterChange after setting selected teacher
+                    handleFilterChange();
                   }}
                   className="border dark:border-gray-700 bg-gray-300 text-black dark:bg-gray-700 dark:text-white border-gray-300 rounded-md px-2 py-1 w-full"
                 >
                   <option value="">All Teachers</option>
-                  {teachers.map((teacher, idx) => (
-                    <option key={idx} value={teacher}>
-                      {teacher}
+                  {teachers.map((teacher) => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.name}
                     </option>
                   ))}
                 </select>
+
               </div>
 
             </div>
@@ -282,7 +278,7 @@ const AttendanceDashboard = () => {
               </div>
             </div>
 
-        
+
 
             {/* Reports List */}
             {filteredRecords.length > 0 && (
