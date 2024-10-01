@@ -2,26 +2,7 @@ const Attendance = require('../models/Attendance');
 const Class = require('../models/Class');
 const User = require('../models/User');
 
-// Get attendance for a specific class on a given date
-exports.getAttendanceByClassAndDate = async (req, res) => {
-  try {
-    const { classId, date } = req.params;
 
-    const attendance = await Attendance.find({ class_id: classId, date: new Date(date) })
-      .populate('class_id')
-      .populate('teacher_id')
-      .populate('studentsPresent')
-      .populate('studentsAbsent');
-
-    if (!attendance) {
-      return res.status(404).json({ message: 'No attendance records found for this class and date' });
-    }
-
-    res.status(200).json(attendance);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching attendance', error });
-  }
-};
 
 // Get attendance for a specific student across classes and dates
 exports.getAttendanceByStudent = async (req, res) => {
@@ -82,26 +63,6 @@ exports.markAttendance = async (req, res) => {
   }
 };
 
-// Get attendance for all students in a specific class
-exports.getClassAttendance = async (req, res) => {
-  try {
-    const { classId } = req.params;
-
-    const attendanceRecords = await Attendance.find({ class_id: classId })
-      .populate('class_id')
-      .populate('teacher_id')
-      .populate('studentsPresent')
-      .populate('studentsAbsent');
-
-    if (!attendanceRecords || attendanceRecords.length === 0) {
-      return res.status(404).json({ message: 'No attendance records found for this class' });
-    }
-
-    res.status(200).json(attendanceRecords);
-  } catch (error) {
-    res.status(500).json({ message: 'Error fetching class attendance', error });
-  }
-};
 
 exports.getAttendance = async (req, res) => {
   try {
@@ -136,6 +97,25 @@ exports.getStudentAttendanceSummary = async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching student attendance summary', error });
+  }
+};
+//Get Total Count of Presents and Absents
+exports.totalCountOfAttendance = async (req, res) => {
+  try {
+    const summary = await Attendance.aggregate([
+      {
+        $group: {
+          _id: null,
+          totalPresent: { $sum: "$present" },
+          totalAbsent: { $sum: "$absent" }
+        }
+      }
+    ]);
+
+    res.json(summary[0]); // Send the summary result to the frontend
+  } catch (error) {
+    console.error('Error fetching attendance summary', error);
+    res.status(500).json({ error: 'Failed to fetch attendance summary' });
   }
 };
 

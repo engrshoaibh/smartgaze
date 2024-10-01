@@ -371,23 +371,7 @@ async function markAttendance(classId, attendanceData) {
   }
 }
 
-async function getClassAttendance(classId) {
-  try {
 
-    const token = localStorage.getItem("token")
-    const response = await axios.get(
-      `${API_URL}/attendance/class/${classId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-    console.log('Class attendance:', response.data);
-  } catch (error) {
-    console.error('Error fetching class attendance:', error.response?.data || error.message);
-  }
-}
 
 async function getAttendanceByStudent(studentId) {
   try {
@@ -406,22 +390,6 @@ async function getAttendanceByStudent(studentId) {
   }
 }
 
-async function getAttendanceByClassAndDate(classId, date) {
-  try {
-    const token = localStorage.getItem("token")
-    const response = await axios.get(
-      `${API_URL}/attendance/class/${classId}/date/${date}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`
-        }
-      }
-    );
-    console.log('Attendance for class on date:', response.data);
-  } catch (error) {
-    console.error('Error fetching attendance by class and date:', error.response?.data || error.message);
-  }
-}
 
 async function getStudentAttendanceSummary(studentId) {
   try {
@@ -456,6 +424,37 @@ async function getAttendance() {
   }
 }
 
+async function getTotalCountOfAttendance() {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/attendance/totalCountOfAttendance`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student total attendance counts:', error.response?.data || error.message);
+  }
+}
+async function getTotalCountOfEmotions() {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/emotion/totalCountOfEmotions`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student total attendance counts:', error.response?.data || error.message);
+  }
+}
 
-
-export {getAttendance,getClasses, getAttendanceByStudent, getAttendanceByClassAndDate, getStudentAttendanceSummary, getClassAttendance, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };
+export {getTotalCountOfEmotions,getTotalCountOfAttendance,getAttendance,getClasses, getAttendanceByStudent, getStudentAttendanceSummary, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };

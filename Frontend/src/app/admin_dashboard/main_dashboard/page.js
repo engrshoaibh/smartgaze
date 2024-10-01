@@ -10,6 +10,7 @@ import { FaUserGraduate, FaChalkboardTeacher, FaBriefcase, FaUserShield } from '
 import { useState, useEffect } from 'react';
 import { getDashboardStats } from '../../../../../Backend/utils/api';
 
+
 export default function MainDashboard({}) {
   const [stats, setStats] = useState({ students: 0, teachers: 0, classes: 0, admins: 0 });
 

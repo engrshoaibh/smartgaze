@@ -4,7 +4,7 @@ const authMiddleware = require('../utils/authMiddleware');
 
 const router = express.Router();
 
-router.post('/mark', authMiddleware.protect, authMiddleware.restrictTo('teacher', 'admin'), emotionController.markEmotion);
+router.get('/totalCountOfEmotions', authMiddleware.protect, authMiddleware.restrictTo('teacher', 'admin'), emotionController.totalCountOfEmotions);
 router.get('/class/:classId', authMiddleware.protect, emotionController.getClassEmotions);
 
 module.exports = router;

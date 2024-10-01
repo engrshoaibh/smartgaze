@@ -1,15 +1,21 @@
 const Emotion = require('../models/Emotion');
 
-// Mark emotional state for a student in a class
-exports.markEmotion = async (req, res) => {
+
+exports.totalCountOfEmotions = async (req, res) => {
   try {
-    const emotion = await Emotion.create(req.body);
-    res.status(201).json({
-      status: 'success',
-      data: { emotion }
-    });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
+    const summary = await Emotion.aggregate([
+      {
+        $group: {
+          _id: "$emotion",  // Group by emotion field
+          count: { $sum: 1 }  // Count occurrences
+        }
+      }
+    ]);
+
+    res.json(summary); // Send the summary result to the frontend
+  } catch (error) {
+    console.error('Error fetching emotions summary', error);
+    res.status(500).json({ error: 'Failed to fetch emotions summary' });
   }
 };
 
