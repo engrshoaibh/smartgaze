@@ -27,7 +27,7 @@ export default function Sidebar() {
     <div
       className={`group flex flex-col ${
         isExpanded ? 'w-64' : 'w-20'
-      } bg-white text-black transition-all duration-300 shadow-lg relative`}
+      } bg-white dark:bg-gray-900 text-black dark:text-white shadow-lg relative dark:shadow-[0px_4px_15px_rgba(255,255,255,0.1)]`}
     >
       <div className="flex items-center p-4 relative">
         <div className="flex items-center">
@@ -37,12 +37,12 @@ export default function Sidebar() {
             className="w-8 h-8 rounded-full border border-gray-300 dark:border-gray-700"
           />
           {isExpanded && (
-            <span className="ml-3 text-lg font-normal text-gray-700">Smart Gaze</span>
+            <span className="ml-3 text-lg font-normal text-gray-700 dark:text-gray-200">Smart Gaze</span>
           )}
         </div>
         <button
           onClick={toggleSidebar}
-          className="p-1 text-gray-600 dark:text-gray-300 focus:outline-none absolute -right-3 top-3 bg-gray-200 dark:bg-gray-700 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+          className="p-1 text-gray-600 dark:text-gray-300 focus:outline-none absolute -right-3 top-3 bg-gray-200 dark:bg-gray-700 rounded-full opacity-0 group-hover:opacity-100 "
         >
           {isExpanded ? <FaChevronLeft className="text-sm" /> : <FaChevronRight className="text-sm" />}
         </button>
@@ -56,7 +56,7 @@ export default function Sidebar() {
             { name: 'Emotional State Dashboard', icon: FaSmile, href: '/student_dashboard/emotionalstate_dashboard' },
             { name: 'Attention Level Dashboard',  icon: FaBrain, href: '/student_dashboard/attentionlevel_dashboard' },
             { name: 'Classes', icon: FaChalkboardTeacher, href: '/student_dashboard/classes' },
-            { name: 'Customizations', icon: FaCogs, href: '/student_dashboard/customizations' },
+        
           ].map((item) => (
             <li key={item.name}>
               <a
@@ -64,7 +64,7 @@ export default function Sidebar() {
                 className={`flex items-center px-4 py-3 rounded-lg transition-colors duration-200 ${
                   isActiveRoute(item.href)
                     ? 'bg-gradient-to-br from-[#1E2B3A] to-[#3E5259] text-white shadow-md'
-                    : 'hover:bg-gray-200 hover:text-white dark:hover:bg-gray-800 dark:hover:text-white'
+                    : 'hover:bg-gray-200 hover:text-black dark:hover:bg-gray-800 dark:hover:text-white'
                 }`}
               >
                 <item.icon className="text-lg mr-3" />

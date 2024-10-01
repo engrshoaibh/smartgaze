@@ -8,7 +8,6 @@ const login = async (data) => {
   const response = await axios.post(`${API_URL}/auth/login`, data);
   return response.data;
 };
-
 const signup = async (userData) => {
   try {
     console.log("Create Profile", userData)
@@ -44,7 +43,6 @@ const forgotPassword = async (email) => {
     }
   }
 };
-
 const createClass = async (classData, token) => {
   try {
     const response = await axios.post(`${API_URL}/class/create`, classData, {
@@ -80,7 +78,6 @@ const getClasses = async () => {
 
   }
 }
-
 const getTeachers = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -95,7 +92,6 @@ const getTeachers = async () => {
     throw error;
   }
 };
-
 const getStudents = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -111,7 +107,6 @@ const getStudents = async () => {
     throw error;
   }
 };
-
 const getUsers = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -160,7 +155,6 @@ const getAssignedClasses = async () => {
     console.error('Error fetching classes:', error.response?.data || error.message);
   }
 };
-
 const addStudentToCourse = async (classId, courseCode, studentId) => {
   try {
     const token = localStorage.getItem('token'); // Retrieve the token from local storage
@@ -181,7 +175,6 @@ const addStudentToCourse = async (classId, courseCode, studentId) => {
     throw error; // Throw the error to be handled by the calling function
   }
 };
-
 const customizations = async (threshold, imageInterval) => {
   try {
     const token = localStorage.getItem('token');
@@ -245,7 +238,6 @@ const getCustomizations = async () => {
     return 'Error occurred. Please try again.';
   }
 };
-
 const removeStudentFromCourse = async (classId, courseCode, studentId) => {
   try {
     const token = localStorage.getItem('token');
@@ -282,7 +274,6 @@ const createOrUpdateSchedule = async (classId, courseCode, courseName, day, time
     console.error('Error creating/updating schedule:', error.response?.data || error.message);
   }
 };
-
 const getCourseSchedule = async (classId, courseCode) => {
   try {
     const token = localStorage.getItem("token");
@@ -297,7 +288,6 @@ const getCourseSchedule = async (classId, courseCode) => {
     console.error("Error getting Course Schedule", error.message)
   }
 }
-
 const getDashboardStats = async () => {
   try {
     const token = localStorage.getItem('token');
@@ -312,7 +302,6 @@ const getDashboardStats = async () => {
     throw error;
   }
 };
-
 const updateUser = async (data, userId) => {
   try {
     console.log("Updated Received:", data, userId);
@@ -350,10 +339,6 @@ const deleteUser = async (userId) => {
     throw error;
   }
 };
-
-
-//Attendance APIs
-
 async function markAttendance(classId, attendanceData) {
   try {
     const token = localStorage.getItem("token")
@@ -370,9 +355,6 @@ async function markAttendance(classId, attendanceData) {
     console.error('Error marking attendance:', error.response?.data || error.message);
   }
 }
-
-
-
 async function getAttendanceByStudent(studentId) {
   try {
     const token = localStorage.getItem("token")
@@ -389,8 +371,6 @@ async function getAttendanceByStudent(studentId) {
     console.error('Error fetching student attendance:', error.response?.data || error.message);
   }
 }
-
-
 async function getStudentAttendanceSummary(studentId) {
   try {
     const token = localStorage.getItem("token")
@@ -423,7 +403,6 @@ async function getAttendance() {
     console.error('Error fetching student attendance summary:', error.response?.data || error.message);
   }
 }
-
 async function getTotalCountOfAttendance() {
   try {
     const token = localStorage.getItem("token")
@@ -457,4 +436,21 @@ async function getTotalCountOfEmotions() {
   }
 }
 
-export {getTotalCountOfEmotions,getTotalCountOfAttendance,getAttendance,getClasses, getAttendanceByStudent, getStudentAttendanceSummary, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };
+async function getEnrolledCoursesCount() {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/student/enrolledCoursesCount`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student total attendance counts:', error.response?.data || error.message);
+  }
+}
+
+export {getEnrolledCoursesCount,getTotalCountOfEmotions,getTotalCountOfAttendance,getAttendance,getClasses, getAttendanceByStudent, getStudentAttendanceSummary, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };
