@@ -453,4 +453,21 @@ async function getEnrolledCoursesCount() {
   }
 }
 
-export {getEnrolledCoursesCount,getTotalCountOfEmotions,getTotalCountOfAttendance,getAttendance,getClasses, getAttendanceByStudent, getStudentAttendanceSummary, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };
+async function getMyClassesAttendance() {
+  try {
+    const token = localStorage.getItem("token")
+    const response = await axios.get(
+      `${API_URL}/teacher/getMyClassesAttendance`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching student total attendance counts:', error.response?.data || error.message);
+  }
+}
+
+export {getMyClassesAttendance,getEnrolledCoursesCount,getTotalCountOfEmotions,getTotalCountOfAttendance,getAttendance,getClasses, getAttendanceByStudent, getStudentAttendanceSummary, markAttendance, deleteUser, updateUser, getUsers, getCourseSchedule, removeStudentFromCourse, getStudentsByClass, login, createOrUpdateSchedule, signup, forgotPassword, createClass, getTeachers, getStudents, getAssignedClasses, addStudentToCourse, customizations, getCustomizations, getDashboardStats };

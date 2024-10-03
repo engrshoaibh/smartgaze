@@ -43,28 +43,21 @@ exports.getStudentsByClass = async (req, res) => {
 };
 
 
-// Get attendance for a class
-exports.getClassAttendance = async (req, res) => {
-  try {
-    const attendance = await Attendance.find({ class: req.params.classId });
-    res.status(200).json({
-      status: 'success',
-      data: { attendance }
-    });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
-  }
-};
+// Get attendance for a all classes assigned to teacher
 
-// Get emotions for a class
-exports.getClassEmotions = async (req, res) => {
+exports.getAllCoursesAttendance = async (req, res) => {
   try {
-    const emotions = await Emotion.find({ class: req.params.classId });
-    res.status(200).json({
-      status: 'success',
-      data: { emotions }
-    });
-  } catch (err) {
-    res.status(400).json({ status: 'fail', message: err.message });
+    const teacher_id = req.user._id;
+    const attendanceRecords = await Attendance.find({teacher_id})
+      .populate('studentsPresent')
+      .populate('studentsAbsent');
+
+    if (!attendanceRecords || attendanceRecords.length === 0) {
+      return res.status(404).json({ message: 'No attendance records found' });
+    }
+
+    res.status(200).json(attendanceRecords);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching class attendance', error });
   }
-};
+}
